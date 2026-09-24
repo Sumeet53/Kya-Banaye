@@ -1,0 +1,288 @@
+[
+  {
+    "id": 1,
+    "name": "Crispy Golden Dosa & Velvet Chutney",
+    "category": "Breakfast",
+    "isJain": true,
+    "prepTime": "10 mins",
+    "cookTime": "15 mins",
+    "calories": 320,
+    "protein": "8g",
+    "carbs": "52g",
+    "fat": "9g",
+    "baseServings": 2,
+    "description": "Fermented rice-lentil crepes cooked crisp with ghee, served alongside fresh coconut-coriander chutney.",
+    "ingredients": [
+      { "name": "Fermented Dosa batter", "amount": 2, "unit": "cups" },
+      { "name": "Fresh grated coconut", "amount": 0.5, "unit": "cup" },
+      { "name": "Green chillies", "amount": 2, "unit": "pc" },
+      { "name": "Mustard seeds", "amount": 0.5, "unit": "tsp" },
+      { "name": "Curry leaves", "amount": 8, "unit": "leaves" },
+      { "name": "Hing (Asafoetida)", "amount": 0.25, "unit": "tsp" },
+      { "name": "Ghee or Oil", "amount": 1, "unit": "tbsp" }
+    ],
+    "instructions": [
+      "Blend grated coconut, green chillies, salt, and water into a smooth paste.",
+      "Heat half the ghee in a small pan, crackle mustard seeds, curry leaves, and hing, then pour over chutney.",
+      "Heat a flat non-stick tawa on medium-high heat and brush lightly with ghee.",
+      "Pour a ladleful of batter in the center and spread outward in circular motions into a thin disc.",
+      "Drizzle ghee around the edges and cook until the bottom turns golden brown and crisp."
+    ]
+  },
+  {
+    "id": 2,
+    "name": "Royal Shekhawati Dal Tadka",
+    "category": "Main Course",
+    "isJain": false,
+    "prepTime": "15 mins",
+    "cookTime": "20 mins",
+    "calories": 280,
+    "protein": "14g",
+    "carbs": "40g",
+    "fat": "7g",
+    "baseServings": 3,
+    "description": "High-protein yellow pigeon pea stew infused with turmeric and tempered with cumin ghee.",
+    "ingredients": [
+      { "name": "Toor dal (Pigeon peas)", "amount": 1, "unit": "cup" },
+      { "name": "Chopped tomatoes", "amount": 2, "unit": "pc" },
+      { "name": "Ginger-garlic paste", "amount": 1, "unit": "tbsp" },
+      { "name": "Cumin seeds", "amount": 1, "unit": "tsp" },
+      { "name": "Turmeric powder", "amount": 0.5, "unit": "tsp" },
+      { "name": "Desi Ghee", "amount": 2, "unit": "tbsp" }
+    ],
+    "instructions": [
+      "Pressure cook toor dal with water, turmeric, and salt for 4 whistles until completely tender.",
+      "Heat ghee in a pan, add cumin seeds, and let them crackle.",
+      "Add ginger-garlic paste and chopped tomatoes; sauté until tomatoes soften and oil separates.",
+      "Pour the cooked yellow dal into the tempering, adjust consistency with warm water, and simmer for 5 minutes."
+    ]
+  },
+  {
+    "id": 3,
+    "name": "Nawab's Jain Paneer Makhan Malai",
+    "category": "Main Course",
+    "isJain": true,
+    "prepTime": "15 mins",
+    "cookTime": "20 mins",
+    "calories": 380,
+    "protein": "18g",
+    "carbs": "16g",
+    "fat": "28g",
+    "baseServings": 3,
+    "description": "Succulent cottage cheese cubes simmered in a velvety tomato, melon seed, and cashew gravy without onion or garlic.",
+    "ingredients": [
+      { "name": "Fresh Paneer (Cottage cheese)", "amount": 250, "unit": "g" },
+      { "name": "Tomato puree", "amount": 1.5, "unit": "cups" },
+      { "name": "Cashew & Magaz (melon seed) paste", "amount": 3, "unit": "tbsp" },
+      { "name": "Kasuri Methi (Dried fenugreek)", "amount": 1, "unit": "tsp" },
+      { "name": "Garam Masala", "amount": 0.5, "unit": "tsp" },
+      { "name": "Fresh Cream", "amount": 2, "unit": "tbsp" },
+      { "name": "Butter", "amount": 1.5, "unit": "tbsp" }
+    ],
+    "instructions": [
+      "Heat butter in a pan, add tomato puree, and cook on medium heat until reduced.",
+      "Stir in cashew-melon seed paste and cook until gravy leaves the sides of the pan.",
+      "Add 1/2 cup warm water, salt, garam masala, and bring to a gentle boil.",
+      "Add paneer cubes, crush Kasuri Methi between palms and sprinkle on top, simmer for 4 minutes.",
+      "Finish with fresh cream and serve hot with phulkas."
+    ]
+  },
+  {
+    "id": 4,
+    "name": "Indori Zesty Poha Delight",
+    "category": "Breakfast",
+    "isJain": false,
+    "prepTime": "10 mins",
+    "cookTime": "10 mins",
+    "calories": 240,
+    "protein": "5g",
+    "carbs": "42g",
+    "fat": "6g",
+    "baseServings": 2,
+    "description": "Feather-light steamed flattened rice tempered with mustard, fennel seeds, turmeric, and topped with crisp sev.",
+    "ingredients": [
+      { "name": "Thick Poha (Flattened rice)", "amount": 2, "unit": "cups" },
+      { "name": "Finely chopped onion", "amount": 1, "unit": "pc" },
+      { "name": "Mustard seeds", "amount": 0.5, "unit": "tsp" },
+      { "name": "Fennel seeds (Saunf)", "amount": 0.5, "unit": "tsp" },
+      { "name": "Turmeric powder", "amount": 0.5, "unit": "tsp" },
+      { "name": "Lemon juice", "amount": 1, "unit": "tbsp" },
+      { "name": "Ratlami Sev for topping", "amount": 4, "unit": "tbsp" }
+    ],
+    "instructions": [
+      "Rinse poha in a colander under running water for 30 seconds; drain completely and toss with sugar, salt, and turmeric.",
+      "Heat oil in a pan, crackle mustard and fennel seeds, then sauté chopped onions until translucent.",
+      "Add rinsed poha, cover with a lid, and steam on low heat for 3 minutes.",
+      "Drizzle fresh lemon juice and garnish with Ratlami sev and fresh coriander."
+    ]
+  },
+  {
+    "id": 5,
+    "name": "Guajarati Khatta Meetha Moong",
+    "category": "Main Course",
+    "isJain": true,
+    "prepTime": "10 mins",
+    "cookTime": "20 mins",
+    "calories": 210,
+    "protein": "12g",
+    "carbs": "34g",
+    "fat": "3g",
+    "baseServings": 2,
+    "description": "Wholesome whole green gram curry lightly sweetened with jaggery and balanced with lemon zest.",
+    "ingredients": [
+      { "name": "Whole Green Moong (Soaked overnight)", "amount": 1, "unit": "cup" },
+      { "name": "Jaggery (Gud)", "amount": 1, "unit": "tbsp" },
+      { "name": "Lemon juice", "amount": 1, "unit": "tbsp" },
+      { "name": "Coriander-cumin powder", "amount": 1, "unit": "tsp" },
+      { "name": "Red chilli powder", "amount": 0.5, "unit": "tsp" },
+      { "name": "Cumin seeds", "amount": 0.5, "unit": "tsp" },
+      { "name": "Oil", "amount": 1, "unit": "tbsp" }
+    ],
+    "instructions": [
+      "Pressure cook soaked green moong with salt and water for 3 whistles until cooked but firm.",
+      "Heat oil, crackle cumin seeds, then add red chilli powder, coriander-cumin powder, and cooked moong.",
+      "Stir in jaggery and 1/2 cup water; simmer for 5-7 minutes until flavours blend.",
+      "Turn off heat and stir in lemon juice before serving with hot khakhra or roti."
+    ]
+  },
+  {
+    "id": 6,
+    "name": "Kashmiri Chana Palak Power Bowl",
+    "category": "Main Course",
+    "isJain": false,
+    "prepTime": "15 mins",
+    "cookTime": "25 mins",
+    "calories": 310,
+    "protein": "15g",
+    "carbs": "44g",
+    "fat": "8g",
+    "baseServings": 3,
+    "description": "Iron and protein-packed curry pairing soft chickpeas with pureed spiced spinach.",
+    "ingredients": [
+      { "name": "Chickpeas (Kabuli Chana - Boiled)", "amount": 1.5, "unit": "cups" },
+      { "name": "Fresh Spinach (Palak) leaves", "amount": 3, "unit": "cups" },
+      { "name": "Garlic cloves (finely chopped)", "amount": 4, "unit": "pc" },
+      { "name": "Tomato puree", "amount": 0.5, "unit": "cup" },
+      { "name": "Garam masala", "amount": 0.5, "unit": "tsp" },
+      { "name": "Oil or Ghee", "amount": 1, "unit": "tbsp" }
+    ],
+    "instructions": [
+      "Blanch spinach in boiling water for 2 minutes, plunge into ice water, and puree smoothly.",
+      "Heat oil in a pan, sauté chopped garlic until golden, then add tomato puree and spices.",
+      "Add boiled chickpeas and spinach puree; mix well and cook on medium heat for 8 minutes.",
+      "Adjust salt and serve hot with steamed jeera rice."
+    ]
+  },
+  {
+    "id": 7,
+    "name": "Jain Malai Raw Banana Kebab",
+    "category": "Snack",
+    "isJain": true,
+    "prepTime": "20 mins",
+    "cookTime": "15 mins",
+    "calories": 260,
+    "protein": "6g",
+    "carbs": "38g",
+    "fat": "10g",
+    "baseServings": 2,
+    "description": "Pan-seared spiced raw banana patties stuffed with soft paneer and herbs.",
+    "ingredients": [
+      { "name": "Raw Bananas (Pressure cooked & mashed)", "amount": 2, "unit": "pc" },
+      { "name": "Grated Paneer (for stuffing)", "amount": 0.5, "unit": "cup" },
+      { "name": "Cornflour (for binding)", "amount": 2, "unit": "tbsp" },
+      { "name": "Amchur (Dry mango powder)", "amount": 0.5, "unit": "tsp" },
+      { "name": "Green chilli paste", "amount": 0.5, "unit": "tsp" },
+      { "name": "Oil for shallow frying", "amount": 2, "unit": "tbsp" }
+    ],
+    "instructions": [
+      "Mix mashed raw banana, cornflour, amchur, green chilli paste, and salt into a smooth dough.",
+      "Divide into small balls, flatten into discs, and stuff the center with grated paneer.",
+      "Seal edges and shape into round patties.",
+      "Shallow fry on a non-stick pan with minimal oil until golden and crisp on both sides."
+    ]
+  },
+  {
+    "id": 8,
+    "name": "Maharashtrian Sabudana Pearl Khichdi",
+    "category": "Breakfast",
+    "isJain": true,
+    "prepTime": "10 mins",
+    "cookTime": "12 mins",
+    "calories": 340,
+    "protein": "6g",
+    "carbs": "56g",
+    "fat": "10g",
+    "baseServings": 2,
+    "description": "Fluffy, non-sticky sago pearls tossed with roasted peanut coarse powder and green chillies.",
+    "ingredients": [
+      { "name": "Sabudana (Tapioca pearls - Soaked)", "amount": 1.5, "unit": "cups" },
+      { "name": "Roasted peanut powder (Coarse)", "amount": 0.5, "unit": "cup" },
+      { "name": "Green chillies (Chopped)", "amount": 2, "unit": "pc" },
+      { "name": "Cumin seeds", "amount": 1, "unit": "tsp" },
+      { "name": "Ghee", "amount": 1.5, "unit": "tbsp" },
+      { "name": "Lemon juice", "amount": 1, "unit": "tbsp" }
+    ],
+    "instructions": [
+      "Mix soaked sabudana pearls with coarse roasted peanut powder and salt in a bowl.",
+      "Heat ghee in a pan, crackle cumin seeds, and add chopped green chillies.",
+      "Add sabudana-peanut mix and cook on low heat, stirring gently until pearls turn translucent.",
+      "Drizzle fresh lemon juice, garnish with coriander, and serve immediately."
+    ]
+  },
+  {
+    "id": 9,
+    "name": "Jain Lauki Kofta Curry",
+    "category": "Main Course",
+    "isJain": true,
+    "prepTime": "20 mins",
+    "cookTime": "20 mins",
+    "calories": 270,
+    "protein": "9g",
+    "carbs": "28g",
+    "fat": "14g",
+    "baseServings": 3,
+    "description": "Tender bottle gourd dumplings poached in a rich curd and gram flour tempered curry.",
+    "ingredients": [
+      { "name": "Lauki (Grated bottle gourd)", "amount": 2, "unit": "cups" },
+      { "name": "Besan (Gram flour)", "amount": 0.5, "unit": "cup" },
+      { "name": "Whisked Curd (Yogurt)", "amount": 1, "unit": "cup" },
+      { "name": "Kashmiri red chilli powder", "amount": 1, "unit": "tsp" },
+      { "name": "Cumin-coriander powder", "amount": 1, "unit": "tsp" },
+      { "name": "Ghee", "amount": 1, "unit": "tbsp" }
+    ],
+    "instructions": [
+      "Squeeze excess water from grated lauki, mix with besan and spices, shape into balls, and steam for 10 minutes.",
+      "Whisk curd with besan (1 tbsp), turmeric, chilli powder, and 1 cup water to make a smooth base.",
+      "Heat ghee, temper with cumin, pour curd mixture, and stir continuously until it comes to a gentle boil.",
+      "Add steamed lauki koftas into the simmering curry and cook for 5 minutes."
+    ]
+  },
+  {
+    "id": 10,
+    "name": "Banarasi Matar Ghugni Sensation",
+    "category": "Snack",
+    "isJain": false,
+    "prepTime": "10 mins",
+    "cookTime": "15 mins",
+    "calories": 220,
+    "protein": "11g",
+    "carbs": "32g",
+    "fat": "5g",
+    "baseServings": 2,
+    "description": "Fresh sweet green peas sautéed with ginger, black pepper, and roasted cumin.",
+    "ingredients": [
+      { "name": "Fresh or Frozen Green Peas", "amount": 2, "unit": "cups" },
+      { "name": "Grated Ginger", "amount": 1, "unit": "tsp" },
+      { "name": "Black pepper powder", "amount": 0.5, "unit": "tsp" },
+      { "name": "Roasted cumin powder", "amount": 1, "unit": "tsp" },
+      { "name": "Mustard oil or Ghee", "amount": 1, "unit": "tbsp" },
+      { "name": "Lemon juice", "amount": 1, "unit": "tsp" }
+    ],
+    "instructions": [
+      "Heat mustard oil in a pan until smoky; reduce heat and add grated ginger.",
+      "Add fresh green peas, salt, and 2 tbsp water; cover and cook on low heat for 8 minutes until tender.",
+      "Uncover, sprinkle black pepper and roasted cumin powder, and toss on high heat for 2 minutes.",
+      "Finish with lemon juice and serve warm with evening tea."
+    ]
+  }
+]
