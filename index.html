@@ -78,7 +78,26 @@
             </div>
 
             <!-- ================= TAB 1: DECIDE (RECIPE SPINNER & DISHES) ================= -->
+                        <!-- ================= TAB 1: DECIDE (RECIPE SPINNER & DISHES) ================= -->
             <div v-if="activeTab === 'decide'" class="space-y-3.5">
+
+                <!-- What's Next: time-aware meal + advance-prep nudge -->
+                <div v-if="mealClock.pick" class="bg-gradient-to-r from-indigo-600 to-violet-600 text-white rounded-3xl p-4 shadow-sm">
+                    <p class="text-[11px] font-bold text-indigo-100 uppercase tracking-wider">{{ mealClock.greeting }} • {{ mealClock.nextLabel }}</p>
+                    <button @click="openRecipeModal(mealClock.pick)" class="mt-1.5 w-full flex items-center gap-3 text-left">
+                        <span class="text-3xl shrink-0">{{ mealClock.pick.emoji }}</span>
+                        <span class="min-w-0">
+                            <span class="block font-heading font-extrabold text-sm truncate">{{ mealClock.pick.name }}</span>
+                            <span class="block text-[11px] text-indigo-100">Tap to see the recipe</span>
+                        </span>
+                    </button>
+                    <div v-if="mealClock.prepTip" class="mt-2.5 flex items-start gap-1.5 bg-white/15 rounded-xl p-2 text-[11px] font-semibold">
+                        <span>⏰</span>
+                        <span>{{ mealClock.prepTip }}</span>
+                    </div>
+                </div>
+
+                <!-- Meal Time Selection Pills -->
                 
                 <!-- Meal Time Selection Pills -->
                 <div class="grid grid-cols-4 bg-slate-200/80 dark:bg-[#2a2566] p-1 rounded-2xl gap-1 text-xs font-bold shadow-inner border border-slate-300/50 dark:border-slate-700/50">
