@@ -16,6 +16,15 @@ const { createApp, ref, computed, onMounted } = Vue;
                 const streak = ref({ count: 0, lastDate: null });
                 const notifPermission = ref(typeof Notification !== 'undefined' ? Notification.permission : 'unsupported');
 
+                // Household: who's eating today drives the diet filter automatically
+                const household = ref([
+                    { id: 1, name: 'Everyone', diet: 'veg' },
+                    { id: 2, name: 'Jain member', diet: 'jain' },
+                ]);
+                const activeEaterIds = ref([1]);
+                const newMemberName = ref('');
+                const newMemberDiet = ref('veg');
+
                 // Settings & Utilities
                 const servingsCount = ref(2);
                 const favoriteDishIds = ref([]);
@@ -456,6 +465,60 @@ const { createApp, ref, computed, onMounted } = Vue;
                 };
                 const isStepChecked = (idx) => checkedSteps.value.includes(idx);
 
+                const applyHouseholdDiet = () => {
+                    const eating = household.value.filter(p => activeEaterIds.value.includes(p.id));
+                    if (!eating.length) { selectedDiet.value = 'all'; return; }
+                    selectedDiet.value = eating.some(p => p.diet === 'jain') ? 'jain' : 'veg';
+                };
+
+                const toggleEater = (id) => {
+                    const i = activeEaterIds.value.indexOf(id);
+                    if (i > -1) activeEaterIds.value.splice(i, 1);
+                    else activeEaterIds.value.push(id);
+                    localStorage.setItem('akb_active_eaters', JSON.stringify(activeEaterIds.value));
+                    applyHouseholdDiet();
+                };
+
+                const addHouseholdMember = () => {
+                    const name = newMemberName.value.trim();
+                    if (!name) return;
+                    const id = Date.now();
+                    household.value = [...household.value, { id, name, diet: newMemberDiet.value }];
+                    activeEaterIds.value = [...activeEaterIds.value, id];
+                    newMemberName.value = '';
+                    localStorage.setItem('akb_household', JSON.stringify(household.value));
+                    localStorage.setItem('akb_active_eaters', JSON.stringify(activeEaterIds.value));
+                    applyHouseholdDiet();
+                };
+
+                const removeHouseholdMember = (id) => {
+                    if (household.value.length <= 1) { showToast("Keep at least one person."); return; }
+                    household.value = household.value.filter(p => p.id !== id);
+                    activeEaterIds.value = activeEaterIds.value.filter(x => x !== id);
+                    localStorage.setItem('akb_household', JSON.stringify(household.value));
+                    localStorage.setItem('akb_active_eaters', JSON.stringify(activeEaterIds.value));
+                    applyHouseholdDiet();
+                };
+
+                const recentLeftoverNudge = computed(() => {
+                    const entries = Object.entries(cookLog.value);
+                    if (!entries.length || !recipes.value.length) return null;
+                    // most recent cook within the last 2 days
+                    const recent = entries
+                        .filter(([, date]) => (Date.now() - new Date(date).getTime()) / 86400000 <= 2)
+                        .sort((a, b) => new Date(b[1]) - new Date(a[1]))[0];
+                    if (!recent) return null;
+                    const dish = recipes.value.find(r => String(r.id) === String(recent[0]));
+                    if (!dish) return null;
+                    const ing = dish.ingredients.join(' ').toLowerCase();
+                    let category = null;
+                    if (/rice|pulao|biryani|khichdi/.test(dish.name.toLowerCase()) || ing.includes('rice')) category = 'rice';
+                    else if (/roti|paratha|thepla|naan|poori|bhakri/.test(dish.name.toLowerCase())) category = 'roti';
+                    else if (/dal|sambar|kadhi/.test(dish.name.toLowerCase())) category = 'dal';
+                    if (!category) return null;
+                    return { dishName: dish.name, category };
+                });
+
                 const cycleDietPreference = () => {
                     const modes = ['all', 'veg', 'jain'];
                     const nextIndex = (modes.indexOf(selectedDiet.value) + 1) % modes.length;
@@ -660,6 +723,12 @@ const { createApp, ref, computed, onMounted } = Vue;
                         }
                     } catch (e) { loadError.value = true; }
 
+                    const savedHousehold = localStorage.getItem('akb_household');
+                    if (savedHousehold) { try { household.value = JSON.parse(savedHousehold); } catch (e) {} }
+                    const savedEaters = localStorage.getItem('akb_active_eaters');
+                    if (savedEaters) { try { activeEaterIds.value = JSON.parse(savedEaters); } catch (e) {} }
+                    applyHouseholdDiet();
+
                     const savedCookLog = localStorage.getItem('akb_cook_log');
                     if (savedCookLog) { try { cookLog.value = JSON.parse(savedCookLog); } catch(e){} }
                     const savedStreak = localStorage.getItem('akb_streak');
@@ -697,6 +766,14 @@ const { createApp, ref, computed, onMounted } = Vue;
                     markCooked,
                     notifPermission,
                     enableNotifications,
+                    household,
+                    activeEaterIds,
+                    newMemberName,
+                    newMemberDiet,
+                    toggleEater,
+                    addHouseholdMember,
+                    removeHouseholdMember,
+                    recentLeftoverNudge,
                     selectedMealType,
                     selectedRegion,
                     selectedDiet,
