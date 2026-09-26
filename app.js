@@ -200,7 +200,40 @@
                     }).filter(r => r.matchCount > 0)
                       .sort((a, b) => b.matchCount - a.matchCount);
                 });
+                                // Advance-prep hints: nudge the person the night/hours before, based on ingredients.
+                const PREP_KEYWORDS = [
+                    { match: ['rajma'], tip: 'Soak the rajma (kidney beans) for at least 6-8 hours or overnight.' },
+                    { match: ['chickpeas'], tip: 'Soak the chickpeas overnight before pressure-cooking.' },
+                    { match: ['black urad'], tip: 'Soak the urad dal for a few hours for a smoother, quicker cook.' },
+                    { match: ['sabudana'], tip: 'Rinse and soak the sabudana for 4-6 hours (not more) so it turns soft, not mushy.' },
+                    { match: ['paneer'], tip: 'If you have time, marinate the paneer in curd and spices 30 minutes ahead.' },
+                    { match: ['moong dal'], tip: 'A quick 20-minute soak of the moong dal helps it cook faster.' },
+                    { match: ['toor dal', 'chana dal', 'masoor dal'], tip: 'Rinse and soak the dal for 20-30 minutes for a faster, softer cook.' },
+                ];
+                const getPrepTip = (recipe) => {
+                    if (!recipe) return null;
+                    const ing = recipe.ingredients.join(' ').toLowerCase();
+                    const hit = PREP_KEYWORDS.find(p => p.match.some(k => ing.includes(k)));
+                    return hit ? hit.tip : null;
+                };
 
+                // What's next: greeting + next meal + a pick for it + any advance-prep nudge.
+                // The pick rotates daily (by date, not randomly) so it's stable within a day.
+                const mealClock = computed(() => {
+                    const hr = new Date().getHours();
+                    let greeting, nextMeal, nextLabel;
+                    if (hr < 6)       { greeting = 'Late night';      nextMeal = 'breakfast'; nextLabel = "Tomorrow's Breakfast"; }
+                    else if (hr < 10) { greeting = 'Good morning';    nextMeal = 'breakfast'; nextLabel = 'Breakfast'; }
+                    else if (hr < 15) { greeting = 'Good afternoon';  nextMeal = 'lunch';      nextLabel = 'Lunch'; }
+                    else if (hr < 19) { greeting = 'Good evening';    nextMeal = 'dinner';     nextLabel = 'Dinner'; }
+                    else if (hr < 22) { greeting = 'Good evening';    nextMeal = 'dinner';     nextLabel = 'Dinner'; }
+                    else              { greeting = 'Good night';     nextMeal = 'breakfast'; nextLabel = "Tomorrow's Breakfast"; }
+
+                    const pool = recipes.value.filter(r => r.mealType === nextMeal);
+                    const dayIndex = Math.floor(Date.now() / 86400000);
+                    const pick = pool.length ? pool[dayIndex % pool.length] : null;
+                    return { greeting, nextMeal, nextLabel, pick, prepTip: getPrepTip(pick) };
+                });
                 const jainView = (r) => {
                     if (r.diet === 'jain') return r;
                     if (!r.jain) return null;
@@ -513,6 +546,7 @@
                     activeTab,
                     loadError,
                     recipeCount,
+                    mealClock,
                     selectedMealType,
                     selectedRegion,
                     selectedDiet,
