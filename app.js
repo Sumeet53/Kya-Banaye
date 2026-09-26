@@ -483,14 +483,10 @@
 
                 onMounted(async () => {
                     try {
-                        if (window.KYA_BANAYE_RECIPES) {
-                            recipes.value = window.KYA_BANAYE_RECIPES.recipes || window.KYA_BANAYE_RECIPES;
-                        } else {
-                            const res = await fetch('recipes.json');
-                            if (!res.ok) throw new Error(res.status);
-                            const data = await res.json();
-                            recipes.value = data.recipes || data;
-                        }
+                        const res = await fetch('recipes.json');
+                        if (!res.ok) throw new Error(res.status);
+                        const data = await res.json();
+                        recipes.value = data.recipes || data;
                     } catch (e) { loadError.value = true; }
 
                     const savedFavs = localStorage.getItem('akb_favorites');
