@@ -12,7 +12,8 @@
                 const selectedRecipeForModal = ref(null);
                 const toastMessage = ref(null);
                 const isDarkMode = ref(false);
-
+                const cookLog = ref({});   // { [recipeId]: 'YYYY-MM-DD' last cooked }
+                const streak = ref({ count: 0, lastDate: null });
                 // Settings & Utilities
                 const servingsCount = ref(2);
                 const favoriteDishIds = ref([]);
@@ -216,7 +217,32 @@
                     const hit = PREP_KEYWORDS.find(p => p.match.some(k => ing.includes(k)));
                     return hit ? hit.tip : null;
                 };
+                const todayStr = () => new Date().toISOString().slice(0, 10);
 
+                const isRecentlyCooked = (recipeId) => {
+                    const last = cookLog.value[recipeId];
+                    if (!last) return false;
+                    const days = (Date.now() - new Date(last).getTime()) / 86400000;
+                    return days < 5;
+                };
+
+                const markCooked = (recipe) => {
+                    if (!recipe) return;
+                    const today = todayStr();
+                    cookLog.value = { ...cookLog.value, [recipe.id]: today };
+                    localStorage.setItem('akb_cook_log', JSON.stringify(cookLog.value));
+
+                    const y = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
+                    if (streak.value.lastDate === today) {
+                        // already logged today, streak unchanged
+                    } else if (streak.value.lastDate === y) {
+                        streak.value = { count: streak.value.count + 1, lastDate: today };
+                    } else {
+                        streak.value = { count: 1, lastDate: today };
+                    }
+                    localStorage.setItem('akb_streak', JSON.stringify(streak.value));
+                    showToast(`✅ Marked cooked! 🔥 ${streak.value.count}-day streak`);
+                };
                 // What's next: greeting + next meal + a pick for it + any advance-prep nudge.
                 // The pick rotates daily (by date, not randomly) so it's stable within a day.
                 const mealClock = computed(() => {
@@ -229,7 +255,9 @@
                     else if (hr < 22) { greeting = 'Good evening';    nextMeal = 'dinner';     nextLabel = 'Dinner'; }
                     else              { greeting = 'Good night';     nextMeal = 'breakfast'; nextLabel = "Tomorrow's Breakfast"; }
 
-                    const pool = recipes.value.filter(r => r.mealType === nextMeal);
+                    const all = recipes.value.filter(r => r.mealType === nextMeal);
+                    const fresh = all.filter(r => !isRecentlyCooked(r.id));
+                    const pool = fresh.length ? fresh : all; // if everything was cooked recently, just show something
                     const dayIndex = Math.floor(Date.now() / 86400000);
                     const pick = pool.length ? pool[dayIndex % pool.length] : null;
                     return { greeting, nextMeal, nextLabel, pick, prepTip: getPrepTip(pick) };
@@ -522,6 +550,11 @@
                         recipes.value = data.recipes || data;
                     } catch (e) { loadError.value = true; }
 
+                    const savedCookLog = localStorage.getItem('akb_cook_log');
+                    if (savedCookLog) { try { cookLog.value = JSON.parse(savedCookLog); } catch(e){} }
+                    const savedStreak = localStorage.getItem('akb_streak');
+                    if (savedStreak) { try { streak.value = JSON.parse(savedStreak); } catch(e){} }
+
                     const savedFavs = localStorage.getItem('akb_favorites');
                     if (savedFavs) {
                         try { favoriteDishIds.value = JSON.parse(savedFavs); } catch(e){}
@@ -547,6 +580,8 @@
                     loadError,
                     recipeCount,
                     mealClock,
+                    streak,
+                    markCooked,
                     selectedMealType,
                     selectedRegion,
                     selectedDiet,
