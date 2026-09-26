@@ -1,4 +1,4 @@
-        const { createApp, ref, computed, onMounted } = Vue;
+const { createApp, ref, computed, onMounted } = Vue;
 
         createApp({
             setup() {
@@ -14,6 +14,8 @@
                 const isDarkMode = ref(false);
                 const cookLog = ref({});   // { [recipeId]: 'YYYY-MM-DD' last cooked }
                 const streak = ref({ count: 0, lastDate: null });
+                const notifPermission = ref(typeof Notification !== 'undefined' ? Notification.permission : 'unsupported');
+
                 // Settings & Utilities
                 const servingsCount = ref(2);
                 const favoriteDishIds = ref([]);
@@ -201,7 +203,8 @@
                     }).filter(r => r.matchCount > 0)
                       .sort((a, b) => b.matchCount - a.matchCount);
                 });
-                                // Advance-prep hints: nudge the person the night/hours before, based on ingredients.
+
+                // Advance-prep hints: nudge the person the night/hours before, based on ingredients.
                 const PREP_KEYWORDS = [
                     { match: ['rajma'], tip: 'Soak the rajma (kidney beans) for at least 6-8 hours or overnight.' },
                     { match: ['chickpeas'], tip: 'Soak the chickpeas overnight before pressure-cooking.' },
@@ -217,6 +220,7 @@
                     const hit = PREP_KEYWORDS.find(p => p.match.some(k => ing.includes(k)));
                     return hit ? hit.tip : null;
                 };
+
                 const todayStr = () => new Date().toISOString().slice(0, 10);
 
                 const isRecentlyCooked = (recipeId) => {
@@ -243,6 +247,7 @@
                     localStorage.setItem('akb_streak', JSON.stringify(streak.value));
                     showToast(`✅ Marked cooked! 🔥 ${streak.value.count}-day streak`);
                 };
+
                 // What's next: greeting + next meal + a pick for it + any advance-prep nudge.
                 // The pick rotates daily (by date, not randomly) so it's stable within a day.
                 const mealClock = computed(() => {
@@ -262,6 +267,107 @@
                     const pick = pool.length ? pool[dayIndex % pool.length] : null;
                     return { greeting, nextMeal, nextLabel, pick, prepTip: getPrepTip(pick) };
                 });
+
+                // ---------- Meal-time & prep-ahead notifications (best-effort, see note below) ----------
+                // These fire reliably whenever the app is open or freshly reopened. On Android/Chrome,
+                // installed as a home-screen app, they can also fire in the background via Periodic
+                // Background Sync -- but that's a browser-granted, best-effort feature (not guaranteed,
+                // and not available on iOS at all). Guaranteed "app fully closed" reminders on every
+                // phone need a real push server, which a static GitHub Pages site can't provide alone.
+                const MEAL_WINDOWS = [
+                    { key: 'breakfast', hour: 8,  minute: 0,  mealType: 'breakfast', label: 'Breakfast' },
+                    { key: 'lunch',     hour: 13, minute: 0,  mealType: 'lunch',     label: 'Lunch' },
+                    { key: 'snacks',    hour: 16, minute: 30, mealType: 'snack',     label: 'Snacks' },
+                    { key: 'dinner',    hour: 20, minute: 0,  mealType: 'dinner',    label: 'Dinner' },
+                ];
+                const PREP_LEAD_MINUTES = 90;
+
+                const pickForMealType = (mealType, dayOffset = 0) => {
+                    const pool = recipes.value.filter(r => r.mealType === mealType);
+                    const fresh = pool.filter(r => !isRecentlyCooked(r.id));
+                    const usable = fresh.length ? fresh : pool;
+                    const dayIndex = Math.floor(Date.now() / 86400000) + dayOffset;
+                    return usable.length ? usable[dayIndex % usable.length] : null;
+                };
+
+                const showLocalNotification = (title, body) => {
+                    if ('serviceWorker' in navigator) {
+                        navigator.serviceWorker.ready.then(reg =>
+                            reg.showNotification(title, { body, icon: 'icon-192.png', badge: 'icon-192.png' })
+                        ).catch(() => { try { new Notification(title, { body }); } catch (e) {} });
+                    } else {
+                        try { new Notification(title, { body }); } catch (e) {}
+                    }
+                };
+
+                const checkMealNotifications = () => {
+                    if (typeof Notification === 'undefined' || Notification.permission !== 'granted') return;
+                    if (!recipes.value.length) return;
+
+                    const now = new Date();
+                    const seenKey = 'akb_notified_' + todayStr();
+                    let seen = {};
+                    try { seen = JSON.parse(localStorage.getItem(seenKey) || '{}'); } catch (e) {}
+                    let changed = false;
+
+                    MEAL_WINDOWS.forEach(w => {
+                        const windowStart = new Date(now);
+                        windowStart.setHours(w.hour, w.minute, 0, 0);
+                        const sinceStart = (now - windowStart) / 60000;
+
+                        // Suggestion right at meal time (a 15-min catch-up window covers the interval gap)
+                        if (sinceStart >= 0 && sinceStart <= 15 && !seen[w.key + '_suggest']) {
+                            const pick = pickForMealType(w.mealType);
+                            if (pick) showLocalNotification(w.label + ' time! 🍽️', `How about ${pick.name}?`);
+                            seen[w.key + '_suggest'] = true; changed = true;
+                        }
+
+                        // Advance-prep nudge before that meal, same day
+                        const prepAt = new Date(windowStart.getTime() - PREP_LEAD_MINUTES * 60000);
+                        const sincePrep = (now - prepAt) / 60000;
+                        if (sincePrep >= 0 && sincePrep <= 15 && !seen[w.key + '_prep']) {
+                            const tip = getPrepTip(pickForMealType(w.mealType));
+                            if (tip) showLocalNotification('Prep for ' + w.label + ' 🕒', tip);
+                            seen[w.key + '_prep'] = true; changed = true;
+                        }
+                    });
+
+                    // Night-before nudge for tomorrow's breakfast (soaking poha, batter, etc.)
+                    const nightPrep = new Date(now); nightPrep.setHours(21, 30, 0, 0);
+                    const sinceNight = (now - nightPrep) / 60000;
+                    if (sinceNight >= 0 && sinceNight <= 15 && !seen.tomorrow_breakfast_prep) {
+                        const tip = getPrepTip(pickForMealType('breakfast', 1));
+                        if (tip) showLocalNotification("Tonight: prep for tomorrow's breakfast 🌙", tip);
+                        seen.tomorrow_breakfast_prep = true; changed = true;
+                    }
+
+                    if (changed) localStorage.setItem(seenKey, JSON.stringify(seen));
+                };
+
+                const enableNotifications = async () => {
+                    if (typeof Notification === 'undefined') {
+                        showToast('Notifications are not supported on this browser.');
+                        return;
+                    }
+                    const perm = await Notification.requestPermission();
+                    notifPermission.value = perm;
+                    if (perm !== 'granted') { showToast('Notifications were not enabled.'); return; }
+
+                    showToast('🔔 Meal reminders enabled!');
+                    checkMealNotifications();
+
+                    // Best-effort only: Periodic Background Sync (Chrome/Android, installed app, not on iOS)
+                    try {
+                        const reg = await navigator.serviceWorker.ready;
+                        if ('periodicSync' in reg) {
+                            const status = await navigator.permissions.query({ name: 'periodic-background-sync' });
+                            if (status.state === 'granted') {
+                                await reg.periodicSync.register('meal-check', { minInterval: 60 * 60 * 1000 });
+                            }
+                        }
+                    } catch (e) { /* not supported here -- the in-app scheduler above still covers this device */ }
+                };
+
                 const jainView = (r) => {
                     if (r.diet === 'jain') return r;
                     if (!r.jain) return null;
@@ -544,10 +650,14 @@
 
                 onMounted(async () => {
                     try {
-                        const res = await fetch('recipes.json');
-                        if (!res.ok) throw new Error(res.status);
-                        const data = await res.json();
-                        recipes.value = data.recipes || data;
+                        if (window.KYA_BANAYE_RECIPES) {
+                            recipes.value = window.KYA_BANAYE_RECIPES.recipes || window.KYA_BANAYE_RECIPES;
+                        } else {
+                            const res = await fetch('recipes.json');
+                            if (!res.ok) throw new Error(res.status);
+                            const data = await res.json();
+                            recipes.value = data.recipes || data;
+                        }
                     } catch (e) { loadError.value = true; }
 
                     const savedCookLog = localStorage.getItem('akb_cook_log');
@@ -573,6 +683,9 @@
                     }
 
                     spinForMeal();
+
+                    checkMealNotifications();
+                    setInterval(checkMealNotifications, 5 * 60 * 1000);
                 });
 
                 return {
@@ -582,6 +695,8 @@
                     mealClock,
                     streak,
                     markCooked,
+                    notifPermission,
+                    enableNotifications,
                     selectedMealType,
                     selectedRegion,
                     selectedDiet,
