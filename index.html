@@ -83,7 +83,10 @@
 
                 <!-- What's Next: time-aware meal + advance-prep nudge -->
                 <div v-if="mealClock.pick" class="bg-gradient-to-r from-indigo-600 to-violet-600 text-white rounded-3xl p-4 shadow-sm">
-                    <p class="text-[11px] font-bold text-indigo-100 uppercase tracking-wider">{{ mealClock.greeting }} • {{ mealClock.nextLabel }}</p>
+                    <div class="flex items-center justify-between">
+                        <p class="text-[11px] font-bold text-indigo-100 uppercase tracking-wider">{{ mealClock.greeting }} • {{ mealClock.nextLabel }}</p>
+                        <span v-if="streak.count > 0" class="text-[11px] font-extrabold bg-white/20 px-2 py-0.5 rounded-full shrink-0">🔥 {{ streak.count }}-day</span>
+                    </div>
                     <button @click="openRecipeModal(mealClock.pick)" class="mt-1.5 w-full flex items-center gap-3 text-left">
                         <span class="text-3xl shrink-0">{{ mealClock.pick.emoji }}</span>
                         <span class="min-w-0">
@@ -641,10 +644,15 @@
 
                     <!-- Modal Footer Action -->
                     <div class="p-3 bg-violet-50 dark:bg-[#1a1747] border-t border-slate-200 dark:border-slate-700 shrink-0 flex gap-2">
+                        <button @click="markCooked(selectedRecipeForModal)"
+                                class="py-2.5 px-3 bg-white dark:bg-[#2a2566] border border-slate-200 dark:border-slate-700 text-indigo-700 dark:text-indigo-300 rounded-xl text-xs font-bold hover:bg-slate-50 dark:hover:bg-slate-800 transition flex items-center justify-center gap-1.5 active:scale-95 shadow-xs">
+                            <i class="fa-solid fa-check"></i>
+                            <span>Cooked this!</span>
+                        </button>
                         <button @click="addRecipeToGrocery(selectedRecipeForModal)" 
                                 class="flex-1 py-2.5 bg-gradient-to-r from-indigo-600 to-violet-600 text-white rounded-xl text-xs font-bold hover:from-indigo-700 hover:to-violet-700 transition flex items-center justify-center gap-1.5 active:scale-95 shadow-xs">
                             <i class="fa-solid fa-cart-plus"></i>
-                            <span>Add Ingredients to Shopping List</span>
+                            <span>Add to Shopping List</span>
                         </button>
                     </div>
                 </div>
