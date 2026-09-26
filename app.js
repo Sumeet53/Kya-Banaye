@@ -230,18 +230,7 @@
                     }
                 };
 
-                const speakRecipe = (recipe) => {
-                    if ('speechSynthesis' in window) {
-                        window.speechSynthesis.cancel();
-                        const text = `${recipe.name}. ${recipe.description}. Steps to cook: ${recipe.steps.join('. ')}`;
-                        const utterance = new SpeechSynthesisUtterance(text);
-                        utterance.rate = 0.9;
-                        window.speechSynthesis.speak(utterance);
-                        showToast('🔊 Reading recipe steps aloud...');
-                    } else {
-                        showToast('Speech synthesis not supported on this browser.');
-                    }
-                };
+
 
                 const changeServings = (delta) => {
                     if (servingsCount.value + delta >= 1 && servingsCount.value + delta <= 12) {
@@ -494,10 +483,14 @@
 
                 onMounted(async () => {
                     try {
-                        const res = await fetch('recipes.json');
-                        if (!res.ok) throw new Error(res.status);
-                        const data = await res.json();
-                        recipes.value = data.recipes || data;
+                        if (window.KYA_BANAYE_RECIPES) {
+                            recipes.value = window.KYA_BANAYE_RECIPES.recipes || window.KYA_BANAYE_RECIPES;
+                        } else {
+                            const res = await fetch('recipes.json');
+                            if (!res.ok) throw new Error(res.status);
+                            const data = await res.json();
+                            recipes.value = data.recipes || data;
+                        }
                     } catch (e) { loadError.value = true; }
 
                     const savedFavs = localStorage.getItem('akb_favorites');
@@ -561,7 +554,6 @@
                     pantryMatchingDishes,
                     currentLeftovers,
                     toggleDarkMode,
-                    speakRecipe,
                     changeServings,
                     isFavorite,
                     toggleFavorite,
