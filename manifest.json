@@ -1,0 +1,23 @@
+{
+  "name": "Aaj Kya Banaen — Khane Mein Kya Banana Hai",
+  "short_name": "Kya Banaen",
+  "description": "Simple, healthy, all-veg meal suggestions for breakfast, lunch and dinner, with next-day prep tips.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#FAF7F0",
+  "theme_color": "#2F5233",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'%3E%3Crect width='192' height='192' fill='%232F5233' rx='24'/%3E%3Ctext x='96' y='128' font-size='100' text-anchor='middle'%3E%F0%9F%8D%B2%3C/text%3E%3C/svg%3E",
+      "sizes": "192x192",
+      "type": "image/svg+xml"
+    },
+    {
+      "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' fill='%232F5233' rx='64'/%3E%3Ctext x='256' y='340' font-size='260' text-anchor='middle'%3E%F0%9F%8D%B2%3C/text%3E%3C/svg%3E",
+      "sizes": "512x512",
+      "type": "image/svg+xml"
+    }
+  ]
+}
