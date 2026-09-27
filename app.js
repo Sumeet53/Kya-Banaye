@@ -251,9 +251,12 @@ function renderPlanAhead() {
 function goTo(route) {
   state.route = route;
   document.querySelectorAll(".view").forEach(v => v.hidden = v.dataset.view !== route);
-  document.querySelectorAll(".nav-link[data-route]").forEach(b => b.classList.toggle("is-active", b.dataset.route === route));
+  // Keep the desktop top nav AND the mobile bottom tab bar in sync with each other.
+  document.querySelectorAll(".nav-link[data-route], .bottom-tab[data-route]").forEach(b => {
+    b.classList.toggle("is-active", b.dataset.route === route);
+  });
   document.getElementById("primaryNav").classList.remove("is-open");
-  window.scrollTo({ top: 0, behavior: "instant" in window ? "instant" : "auto" });
+  window.scrollTo({ top: 0, behavior: "auto" });
   if (route === "recipes") renderRecipes();
   if (route === "ingredients") renderIngredients();
   if (route === "planahead") renderPlanAhead();
