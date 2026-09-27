@@ -1,10 +1,27 @@
-const { createApp, ref, computed, onMounted } = Vue;
+const { createApp, ref, computed, onMounted, watch } = Vue;
 
         createApp({
             setup() {
                 // UI Core State
-                const activeTab = ref('decide');
-                const selectedMealType = ref('lunch');
+                const activeTab = ref('home');
+                // Single source of truth for "what meal does this hour belong to" --
+                // used both by the What's Next banner and to default the meal-type pills,
+                // so they can never show two different meals at once.
+                const getMealBucket = (hr) => {
+                    if (hr < 6) return { greeting: 'Late night', nextMeal: 'breakfast', nextLabel: "Tomorrow's Breakfast" };
+                    if (hr < 10) return { greeting: 'Good morning', nextMeal: 'breakfast', nextLabel: 'Breakfast' };
+                    if (hr < 15) return { greeting: 'Good afternoon', nextMeal: 'lunch', nextLabel: 'Lunch' };
+                    if (hr < 19) return { greeting: 'Good evening', nextMeal: 'dinner', nextLabel: 'Dinner' };
+                    if (hr < 22) return { greeting: 'Good evening', nextMeal: 'dinner', nextLabel: 'Dinner' };
+                    return { greeting: 'Good night', nextMeal: 'breakfast', nextLabel: "Tomorrow's Breakfast" };
+                };
+                // Ticks every minute so time-based computed values (mealClock) actually
+                // update while the app stays open, instead of freezing at whatever hour
+                // it happened to be when some unrelated piece of state last changed.
+                const clockTick = ref(0);
+
+                const userPickedMealType = ref(false);
+                const selectedMealType = ref(getMealBucket(new Date().getHours()).nextMeal);
                 const selectedRegion = ref('All');
                 const selectedDiet = ref('all'); // 'all' (Veg & Jain), 'veg' (Pure Veg), 'jain' (Strict Jain)
                 const isSpinning = ref(false);
@@ -63,11 +80,11 @@ const { createApp, ref, computed, onMounted } = Vue;
 
                 // Nav Config
                 const navigationTabs = [
-                    { id: 'decide', label: 'Decide', icon: 'fa-solid fa-wand-magic-sparkles' },
-                    { id: 'pantry', label: 'Pantry', icon: 'fa-solid fa-kitchen-set' },
-                    { id: 'planner', label: 'Planner', icon: 'fa-solid fa-calendar-days' },
+                    { id: 'home', label: 'Home', icon: 'fa-solid fa-house' },
                     { id: 'leftovers', label: 'Leftover', icon: 'fa-solid fa-recycle' },
+                    { id: 'planner', label: 'Planner', icon: 'fa-solid fa-calendar-days' },
                     { id: 'grocery', label: 'Shopping', icon: 'fa-solid fa-basket-shopping' },
+                    { id: 'you', label: 'You', icon: 'fa-solid fa-user' },
                 ];
 
                 const mealTypes = [
@@ -260,14 +277,8 @@ const { createApp, ref, computed, onMounted } = Vue;
                 // What's next: greeting + next meal + a pick for it + any advance-prep nudge.
                 // The pick rotates daily (by date, not randomly) so it's stable within a day.
                 const mealClock = computed(() => {
-                    const hr = new Date().getHours();
-                    let greeting, nextMeal, nextLabel;
-                    if (hr < 6)       { greeting = 'Late night';      nextMeal = 'breakfast'; nextLabel = "Tomorrow's Breakfast"; }
-                    else if (hr < 10) { greeting = 'Good morning';    nextMeal = 'breakfast'; nextLabel = 'Breakfast'; }
-                    else if (hr < 15) { greeting = 'Good afternoon';  nextMeal = 'lunch';      nextLabel = 'Lunch'; }
-                    else if (hr < 19) { greeting = 'Good evening';    nextMeal = 'dinner';     nextLabel = 'Dinner'; }
-                    else if (hr < 22) { greeting = 'Good evening';    nextMeal = 'dinner';     nextLabel = 'Dinner'; }
-                    else              { greeting = 'Good night';     nextMeal = 'breakfast'; nextLabel = "Tomorrow's Breakfast"; }
+                    clockTick.value; // tracked as a dependency so this recomputes every minute
+                    const { greeting, nextMeal, nextLabel } = getMealBucket(new Date().getHours());
 
                     const all = recipes.value.filter(r => r.mealType === nextMeal);
                     const fresh = all.filter(r => !isRecentlyCooked(r.id));
@@ -275,6 +286,12 @@ const { createApp, ref, computed, onMounted } = Vue;
                     const dayIndex = Math.floor(Date.now() / 86400000);
                     const pick = pool.length ? pool[dayIndex % pool.length] : null;
                     return { greeting, nextMeal, nextLabel, pick, prepTip: getPrepTip(pick) };
+                });
+
+                // Keep the meal-type pills following the clock automatically, unless the
+                // person has deliberately tapped a different one this session.
+                watch(() => mealClock.value.nextMeal, (nm) => {
+                    if (!userPickedMealType.value) selectedMealType.value = nm;
                 });
 
                 // ---------- Meal-time & prep-ahead notifications (best-effort, see note below) ----------
@@ -755,6 +772,7 @@ const { createApp, ref, computed, onMounted } = Vue;
 
                     checkMealNotifications();
                     setInterval(checkMealNotifications, 5 * 60 * 1000);
+                    setInterval(() => { clockTick.value++; }, 60 * 1000);
                 });
 
                 return {
@@ -775,6 +793,7 @@ const { createApp, ref, computed, onMounted } = Vue;
                     removeHouseholdMember,
                     recentLeftoverNudge,
                     selectedMealType,
+                    userPickedMealType,
                     selectedRegion,
                     selectedDiet,
                     isSpinning,
