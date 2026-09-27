@@ -36,6 +36,23 @@
   </nav>
 </header>
 
+<!-- Mobile-only bottom tab bar: one-tap access to the four things people open daily.
+     About App / About Us stay in the hamburger menu above since they're opened rarely. -->
+<nav class="bottom-tab-bar" id="bottomTabBar" aria-label="Primary">
+  <button class="bottom-tab is-active" data-route="home">
+    <span class="bottom-tab-icon" aria-hidden="true">🍽️</span><span>Today</span>
+  </button>
+  <button class="bottom-tab" data-route="ingredients">
+    <span class="bottom-tab-icon" aria-hidden="true">🧺</span><span>Kitchen</span>
+  </button>
+  <button class="bottom-tab" data-route="recipes">
+    <span class="bottom-tab-icon" aria-hidden="true">📖</span><span>Recipes</span>
+  </button>
+  <button class="bottom-tab" data-route="planahead">
+    <span class="bottom-tab-icon" aria-hidden="true">🗓️</span><span>Plan</span>
+  </button>
+</nav>
+
 <main id="main">
 
   <!-- HOME / TODAY -->
