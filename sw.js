@@ -1,4 +1,4 @@
-const VERSION = 'kya-banaye-v8';
+const VERSION = 'kya-banaye-v9';
 const SHELL = ['./', 'index.html', 'style.css', 'app.js', 'recipes.json', 'recipes.js', 'manifest.webmanifest', 'logo-mark.svg', 'icon-192.png', 'icon-512.png', 'apple-touch-icon.png'];
 
 self.addEventListener('install', e => {
