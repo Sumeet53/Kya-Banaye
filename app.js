@@ -103,7 +103,8 @@ const state = {
   useKitchenOnly: false,
   kitchen: loadJSON("kitchen", []),
   history: loadJSON("history", { breakfast: [], lunch: [], dinner: [] }),
-  today: { breakfast: null, lunch: null, dinner: null },
+  today: loadJSON("today", { breakfast: null, lunch: null, dinner: null }),
+  tomorrow: loadJSON("tomorrow", { breakfast: null, lunch: null, dinner: null }),
   favorites: loadJSON("favorites", []),
   interactionCount: loadJSON("interactionCount", 0),
 };
@@ -142,17 +143,23 @@ function pickRecipe(meal) {
   return chosen;
 }
 
-function recordChoice(meal, recipe) {
-  state.today[meal] = recipe;
+function recordChoice(target, meal, recipe) {
+  state[target][meal] = recipe;
   state.history[meal].push(recipe.id);
   state.history[meal] = state.history[meal].slice(-6);
   saveJSON("history", state.history);
+  saveJSON(target, state[target]);
 }
 
 function suggestAll() {
-  ["breakfast", "lunch", "dinner"].forEach(meal => recordChoice(meal, pickRecipe(meal)));
+  ["breakfast", "lunch", "dinner"].forEach(meal => recordChoice("today", meal, pickRecipe(meal)));
   bumpInteraction();
   renderHome();
+}
+
+function suggestAllTomorrow() {
+  ["breakfast", "lunch", "dinner"].forEach(meal => recordChoice("tomorrow", meal, pickRecipe(meal)));
+  bumpInteraction();
   renderPlanAhead();
 }
 
@@ -177,7 +184,6 @@ function mealCardHTML(meal, recipe) {
         ${recipe.tags.map(t => `<span>${tagLabel(t)}</span>`).join("")}
       </div>
       <p class="meal-ingredients"><strong>Needs:</strong> ${recipe.ingredients.join(", ")}</p>
-      <p class="meal-prep"><strong>Tonight, for tomorrow:</strong> ${recipe.advancePrep}</p>
       <div class="meal-actions">
         <button class="icon-btn" data-action="reshuffle" data-meal="${meal}">Try another</button>
         <button class="icon-btn" data-action="favorite" data-id="${recipe.id}">${isFav ? "★ Saved" : "☆ Save"}</button>
@@ -194,7 +200,7 @@ function tagLabel(tag) {
 
 function renderHome() {
   ["breakfast", "lunch", "dinner"].forEach(meal => {
-    if (!state.today[meal]) recordChoice(meal, pickRecipe(meal));
+    if (!state.today[meal]) recordChoice("today", meal, pickRecipe(meal));
   });
   const grid = document.getElementById("thaliGrid");
   grid.innerHTML = ["breakfast", "lunch", "dinner"].map(meal => mealCardHTML(meal, state.today[meal])).join("");
@@ -231,18 +237,25 @@ function renderRecipes() {
     </article>`).join("") || `<p>No recipes match that search yet.</p>`;
 }
 
-/* ---------- Rendering: Plan ahead ---------- */
+/* ---------- Rendering: Plan ahead ----------
+   This tab is deliberately about TOMORROW's menu, not today's — the whole point
+   is to show what to prep tonight while there's still time, for meals you
+   haven't cooked yet. Today's cards intentionally don't repeat this info. */
 function renderPlanAhead() {
+  ["breakfast", "lunch", "dinner"].forEach(meal => {
+    if (!state.tomorrow[meal]) recordChoice("tomorrow", meal, pickRecipe(meal));
+  });
   const list = document.getElementById("planaheadList");
-  const meals = ["breakfast", "lunch", "dinner"].filter(m => state.today[m]);
-  if (!meals.length) { list.innerHTML = "<p>Pick today's meals from the Today tab first.</p>"; return; }
-  list.innerHTML = meals.map(meal => {
-    const r = state.today[meal];
+  list.innerHTML = ["breakfast", "lunch", "dinner"].map(meal => {
+    const r = state.tomorrow[meal];
     return `
-      <div class="planahead-item">
-        <span class="meal-label">${labelFor(meal)} — ${r.name}</span>
-        <h3>${r.advancePrep.split(" — ")[0].split(".")[0]}.</h3>
+      <div class="planahead-item" data-meal="${meal}">
+        <span class="meal-label">Tomorrow's ${labelFor(meal)} — ${r.name}</span>
+        <h3>Prep tonight</h3>
         <p>${r.advancePrep}</p>
+        <div class="meal-actions">
+          <button class="icon-btn" data-action="reshuffle-tomorrow" data-meal="${meal}">Try another</button>
+        </div>
       </div>`;
   }).join("");
 }
@@ -286,16 +299,16 @@ function wireEvents() {
   });
 
   document.getElementById("regenAll").addEventListener("click", suggestAll);
+  document.getElementById("regenTomorrow").addEventListener("click", suggestAllTomorrow);
 
   document.getElementById("thaliGrid").addEventListener("click", e => {
     const btn = e.target.closest("button[data-action]");
     if (!btn) return;
     if (btn.dataset.action === "reshuffle") {
       const meal = btn.dataset.meal;
-      recordChoice(meal, pickRecipe(meal));
+      recordChoice("today", meal, pickRecipe(meal));
       bumpInteraction();
       renderHome();
-      renderPlanAhead();
     }
     if (btn.dataset.action === "favorite") {
       const id = btn.dataset.id;
@@ -304,6 +317,14 @@ function wireEvents() {
       saveJSON("favorites", state.favorites);
       renderHome();
     }
+  });
+
+  document.getElementById("planaheadList").addEventListener("click", e => {
+    const btn = e.target.closest('button[data-action="reshuffle-tomorrow"]');
+    if (!btn) return;
+    recordChoice("tomorrow", btn.dataset.meal, pickRecipe(btn.dataset.meal));
+    bumpInteraction();
+    renderPlanAhead();
   });
 
   document.getElementById("saveIngredients").addEventListener("click", () => {
