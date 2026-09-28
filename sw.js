@@ -26,15 +26,22 @@ self.addEventListener("activate", event => {
 self.addEventListener("fetch", event => {
   if (event.request.method !== "GET") return;
   event.respondWith(
-    caches.match(event.request).then(cached => {
-      if (cached) return cached;
-      return fetch(event.request)
-        .then(response => {
-          const copy = response.clone();
-          caches.open(CACHE_NAME).then(cache => cache.put(event.request, copy));
-          return response;
-        })
-        .catch(() => cached);
-    })
+    caches.open(CACHE_NAME).then(cache =>
+      cache.match(event.request).then(cached => {
+        // Always kick off a network fetch in the background, whether or not
+        // we have a cached copy — this is what keeps the cache self-updating
+        // without needing to bump CACHE_NAME by hand on every deploy.
+        const networkFetch = fetch(event.request)
+          .then(response => {
+            if (response && response.ok) cache.put(event.request, response.clone());
+            return response;
+          })
+          .catch(() => cached); // offline, or the fetch failed: fall back to cache
+
+        // Serve the cached copy instantly if we have one (fast + works offline).
+        // If there's nothing cached yet (first-ever visit), wait on the network.
+        return cached || networkFetch;
+      })
+    )
   );
 });
