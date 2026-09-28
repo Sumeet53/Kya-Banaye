@@ -1,6 +1,6 @@
 {
-  "name": "Aaj Kya Banaen — Khane Mein Kya Banana Hai",
-  "short_name": "Kya Banaen",
+  "name": "Kya Banaye — Khane Mein Kya Banana Hai",
+  "short_name": "Kya Banaye",
   "description": "Simple, healthy, all-veg meal suggestions for breakfast, lunch and dinner, with next-day prep tips.",
   "start_url": "./index.html",
   "scope": "./",
