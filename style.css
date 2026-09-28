@@ -182,8 +182,8 @@ main { max-width: 980px; margin: 0 auto; padding: 32px clamp(16px, 4vw, 40px) 60
 .thali-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-  gap: 18px;
-  margin-bottom: 20px;
+  gap: 12px;
+  margin-bottom: 14px;
 }
 
 .meal-card {
@@ -192,11 +192,11 @@ main { max-width: 980px; margin: 0 auto; padding: 32px clamp(16px, 4vw, 40px) 60
   border: 1px solid var(--line);
   border-left: 5px solid var(--mustard);
   border-radius: var(--radius);
-  padding: 20px 18px 18px;
+  padding: 14px 16px 12px;
   box-shadow: var(--shadow);
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 6px;
 }
 .meal-card[data-meal="lunch"] { border-left-color: var(--primary); }
 .meal-card[data-meal="dinner"] { border-left-color: var(--chili); }
@@ -209,18 +209,18 @@ main { max-width: 980px; margin: 0 auto; padding: 32px clamp(16px, 4vw, 40px) 60
   font-weight: 600;
 }
 
-.meal-name { font-family: var(--serif); font-size: 1.3rem; color: var(--ink); margin: 0; }
+.meal-name { font-family: var(--serif); font-size: 1.1rem; line-height: 1.2; color: var(--ink); margin: 0; }
 
 .meal-meta {
   display: flex;
-  gap: 10px;
+  gap: 6px;
   flex-wrap: wrap;
-  font-size: 0.82rem;
+  font-size: 0.78rem;
   color: #514F45;
 }
-.meal-meta span { background: var(--primary-soft); padding: 3px 9px; border-radius: 999px; }
+.meal-meta span { background: var(--primary-soft); padding: 2px 8px; border-radius: 999px; }
 
-.meal-ingredients { font-size: 0.9rem; color: #3d3b34; }
+.meal-ingredients { font-size: 0.85rem; color: #3d3b34; line-height: 1.4; margin: 0; }
 .meal-ingredients strong { color: var(--ink); }
 
 .meal-prep {
@@ -231,19 +231,21 @@ main { max-width: 980px; margin: 0 auto; padding: 32px clamp(16px, 4vw, 40px) 60
 }
 .meal-prep strong { color: var(--primary); }
 
-.meal-actions { display: flex; gap: 8px; margin-top: auto; padding-top: 6px; }
+.meal-actions { display: flex; gap: 6px; margin-top: auto; padding-top: 2px; }
 
 .icon-btn {
   border: 1px solid var(--line);
   background: var(--paper);
   border-radius: 8px;
-  padding: 7px 11px;
-  font-size: 0.85rem;
+  padding: 6px 10px;
+  font-size: 0.82rem;
   cursor: pointer;
 }
 .icon-btn:hover { background: var(--primary-soft); }
 
 .regen-row { display: flex; justify-content: flex-end; margin-bottom: 30px; }
+
+.plan-tomorrow-row { display: flex; justify-content: center; margin-bottom: 14px; }
 
 /* ---------- Buttons ---------- */
 
