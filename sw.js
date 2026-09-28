@@ -1,4 +1,4 @@
-const CACHE_NAME = "akb-cache-v1";
+const CACHE_NAME = "kb-cache-v2";
 const CORE_ASSETS = [
   "./",
   "./index.html",
