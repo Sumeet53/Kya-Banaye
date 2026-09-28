@@ -1,9 +1,9 @@
 /* ============================================================
-   Aaj Kya Banaen — app.js
+   Kya Banaye — app.js
    Change APP_NAME below to rename the app everywhere in the UI
    that reads from this constant.
    ============================================================ */
-const APP_NAME = "Aaj Kya Banaen";
+const APP_NAME = "Kya Banaye";
 
 /* ---------- Recipe database ----------
    Each recipe: id, name, meal, time (minutes), tags, ingredients,
