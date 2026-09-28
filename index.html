@@ -4,8 +4,8 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
 <meta name="theme-color" content="#375F80" />
-<meta name="description" content="Aaj Kya Banaen — simple, healthy, no-fuss veg meal suggestions for breakfast, lunch and dinner, with next-day prep tips." />
-<title>Aaj Kya Banaen — Kya Banaye Aaj?</title>
+<meta name="description" content="Kya Banaye — simple, healthy, no-fuss veg meal suggestions for breakfast, lunch and dinner, with next-day prep tips." />
+<title>Kya Banaye — Khane Mein Kya Banana Hai?</title>
 <link rel="manifest" href="manifest.json" />
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='48' fill='%23375F80'/%3E%3Ctext x='50' y='66' font-size='55' text-anchor='middle' fill='%23F3F8FC'%3E%F0%9F%8D%B2%3C/text%3E%3C/svg%3E" />
 <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='48' fill='%23375F80'/%3E%3Ctext x='50' y='66' font-size='55' text-anchor='middle' fill='%23F3F8FC'%3E%F0%9F%8D%B2%3C/text%3E%3C/svg%3E" />
@@ -21,7 +21,7 @@
 <header class="topbar">
   <div class="brand">
     <span class="brand-mark" aria-hidden="true">🍲</span>
-    <span class="brand-name">Aaj Kya Banaen</span>
+    <span class="brand-name">Kya Banaye</span>
   </div>
   <button class="nav-toggle" id="navToggle" aria-expanded="false" aria-controls="primaryNav" aria-label="Open menu">
     <span></span><span></span><span></span>
@@ -30,7 +30,7 @@
     <button class="nav-link is-active" data-route="home">Today</button>
     <button class="nav-link" data-route="ingredients">My Kitchen</button>
     <button class="nav-link" data-route="recipes">Recipe Book</button>
-    <button class="nav-link" data-route="planahead">Plan Ahead</button>
+    <button class="nav-link" data-route="planahead">Plan for Tomorrow</button>
     <button class="nav-link" data-route="about-app">About App</button>
     <button class="nav-link" data-route="about-us">About Us</button>
   </nav>
@@ -86,6 +86,10 @@
       <!-- meal cards injected by app.js -->
     </div>
 
+    <div class="plan-tomorrow-row">
+      <button class="btn btn-primary" data-route="planahead">Plan for Tomorrow</button>
+    </div>
+
     <div class="regen-row">
       <button class="btn btn-secondary" id="regenAll">Shuffle all three</button>
     </div>
@@ -123,7 +127,7 @@
 
   <!-- PLAN AHEAD -->
   <section class="view" id="view-planahead" data-view="planahead" hidden>
-    <h1>Plan Ahead</h1>
+    <h1>Plan for Tomorrow</h1>
     <p class="section-sub">A quick look at tomorrow's menu — so you know what to soak, chop or knead tonight, while you still have a few quiet minutes.</p>
     <div class="regen-row">
       <button class="btn btn-secondary" id="regenTomorrow">Shuffle tomorrow's menu</button>
@@ -135,7 +139,7 @@
   <section class="view" id="view-about-app" data-view="about-app" hidden>
     <h1>About the App</h1>
     <div class="prose">
-      <p><strong>Aaj Kya Banaen</strong> exists to solve one small but daily source of mental load: deciding what to cook, three times a day, every single day. It's built for whoever is in charge of the kitchen — most often the women of Indian households — who carry this invisible decision-making labour without much acknowledgement.</p>
+      <p><strong>Kya Banaye</strong> exists to solve one small but daily source of mental load: deciding what to cook, three times a day, every single day. It's built for whoever is in charge of the kitchen — most often the women of Indian households — who carry this invisible decision-making labour without much acknowledgement.</p>
       <p>The app suggests simple, health-conscious, 100% vegetarian meals for breakfast, lunch and dinner, built around ingredients that are ordinarily found in an Indian kitchen. It also nudges you toward small advance preparations — soaking, chopping, marinating, kneading — so that tomorrow's cooking is lighter than today's.</p>
       <p>It does not ask you to buy anything unusual, follow a diet trend, or track calories. It is meant to remove one decision from your day, not add ten more.</p>
       <h2>What it isn't</h2>
@@ -144,7 +148,7 @@
     <div class="disclaimer-box">
       <h3>A note on suggestions and liability</h3>
       <p>Everything this app shows you — meal ideas, health tags, ingredient suggestions and advance-preparation tips — is a general suggestion only, intended for ordinary everyday cooking decisions. It is <em>not</em> medical, dietary, nutritional or professional advice of any kind, and it has not been reviewed by a qualified dietician or medical professional for your specific situation.</p>
-      <p>Aaj Kya Banaen and its developer, <strong>Opal Luna Labs</strong>, make no warranties about the accuracy, completeness, nutritional adequacy or suitability of any suggestion shown in this app, and accept no responsibility or legal liability whatsoever for any health issues, allergic reactions, food safety outcomes, financial loss or any other consequence arising directly or indirectly from the use of this app or reliance on its content.</p>
+      <p>Kya Banaye and its developer, <strong>Opal Luna Labs</strong>, make no warranties about the accuracy, completeness, nutritional adequacy or suitability of any suggestion shown in this app, and accept no responsibility or legal liability whatsoever for any health issues, allergic reactions, food safety outcomes, financial loss or any other consequence arising directly or indirectly from the use of this app or reliance on its content.</p>
       <p>You are responsible for checking ingredients against your own and your family's allergies, medical conditions and dietary restrictions, for following safe food-handling practices, and for using your own judgement and discretion at all times. If you have specific health conditions, please consult a qualified doctor or dietician before making changes to your diet.</p>
     </div>
   </section>
@@ -153,7 +157,7 @@
   <section class="view" id="view-about-us" data-view="about-us" hidden>
     <h1>About Us</h1>
     <div class="prose">
-      <p><strong>Opal Luna Labs</strong> builds small, focused, everyday-use software — the kind that quietly saves someone a bit of time or mental effort, without asking for much in return. Aaj Kya Banaen is one such product: built around a decision millions of Indian households make silently, three times a day.</p>
+      <p><strong>Opal Luna Labs</strong> builds small, focused, everyday-use software — the kind that quietly saves someone a bit of time or mental effort, without asking for much in return. Kya Banaye is one such product: built around a decision millions of Indian households make silently, three times a day.</p>
       <p>We don't collect your kitchen data on a server somewhere to sell you things — what you save in "My Kitchen" and your recipe history stay on your own device. We do intend to keep this app free to use, supported by unobtrusive advertising and an optional premium tier for people who want extra planning features; we'll always be upfront about what's free and what isn't.</p>
       <p>Have feedback, a recipe to suggest, or found something that isn't working? We'd like to hear about it.</p>
     </div>
@@ -165,7 +169,7 @@
 <div class="modal-backdrop" id="premiumModal" hidden>
   <div class="modal" role="dialog" aria-modal="true" aria-labelledby="premiumTitle">
     <button class="modal-close" id="premiumClose" aria-label="Close">&times;</button>
-    <h2 id="premiumTitle">Aaj Kya Banaen — Premium</h2>
+    <h2 id="premiumTitle">Kya Banaye — Premium</h2>
     <ul class="premium-list">
       <li>A full 7-day menu planned in one tap, not one meal at a time</li>
       <li>A shareable, printable shopping list for the week</li>
@@ -178,7 +182,7 @@
 </div>
 
 <footer class="site-footer">
-  <p>&copy; <span id="year"></span> Aaj Kya Banaen. All rights reserved. Powered and Developed by <strong>Opal Luna Labs</strong>.</p>
+  <p>&copy; <span id="year"></span> Kya Banaye. All rights reserved. Powered and Developed by <strong>Opal Luna Labs</strong>.</p>
   <p class="footer-fine">All suggestions are general in nature and not a substitute for professional medical or dietary advice. Use your own discretion. See <button class="link-btn" data-route="about-app">About App</button> for full terms.</p>
 </footer>
 
