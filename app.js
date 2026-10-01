@@ -40,7 +40,7 @@ const RECIPES = [
     ingredients: ["kidney beans (rajma)", "onion", "tomato", "ginger-garlic", "rice", "garam masala"],
     advancePrep: "Soak rajma overnight — it cooks in a third of the time tomorrow and digests easier too." },
   { id: "l2", meal: "lunch", name: "Dal Tadka with Steamed Rice", time: 30, tags: ["protein", "quick", "light"],
-    ingredients: ["toor/moong dal", "tomato", "cumin", "garlic", "ghee", "rice"],
+    ingredients: ["toor dal or moong dal", "tomato", "cumin", "garlic", "ghee", "rice"],
     advancePrep: "Pressure-cook the dal a day ahead if you like — it tastes better the next day, just temper it fresh." },
   { id: "l3", meal: "lunch", name: "Bhindi Masala with Roti", time: 25, tags: ["light", "quick"],
     ingredients: ["okra (bhindi)", "onion", "tomato", "besan", "wheat flour"],
@@ -120,6 +120,19 @@ function saveJSON(key, value) {
 }
 
 /* ---------- Suggestion engine ---------- */
+/* Compares a recipe ingredient with a "My Kitchen" item. Ignores bracketed
+   alternate names, splits "a/b", "a or b", "a-b", drops mixed / seasonal / split / optional. */
+function ingredientKeys(s) {
+  return s.toLowerCase()
+    .replace(/\b(mixed|seasonal|split|whole|optional)\b/g, " ")
+    .split(/[()\/+\-]| or /)
+    .map(t => t.trim())
+    .filter(t => t.length >= 3);
+}
+function ingredientMatches(a, b) {
+  const A = ingredientKeys(a), B = ingredientKeys(b);
+  return A.some(x => B.includes(x));
+}
 function pickRecipe(meal) {
   let pool = RECIPES.filter(r => r.meal === meal);
 
@@ -130,7 +143,7 @@ function pickRecipe(meal) {
 
   if (state.useKitchenOnly && state.kitchen.length) {
     const kitchenPool = pool.filter(r =>
-      r.ingredients.filter(ing => state.kitchen.some(k => ing.includes(k) || k.includes(ing))).length >= Math.ceil(r.ingredients.length * 0.5)
+      r.ingredients.filter(ing => state.kitchen.some(k => ingredientMatches(ing, k))).length >= Math.ceil(r.ingredients.length * 0.5)
     );
     if (kitchenPool.length) pool = kitchenPool;
   }
@@ -178,25 +191,21 @@ function mealCardHTML(meal, recipe) {
   return `
     <article class="meal-card" data-meal="${meal}">
       <span class="meal-label">${labelFor(meal)}</span>
-      <h3 class="meal-name">${recipe.name}</h3>
+      <h3 class="meal-name">${tName(recipe)}</h3>
       <div class="meal-meta">
-        <span>${recipe.time} min</span>
+        <span>${recipe.time} ${tr("min")}</span>
         ${recipe.tags.map(t => `<span>${tagLabel(t)}</span>`).join("")}
       </div>
-      <p class="meal-ingredients"><strong>Needs:</strong> ${recipe.ingredients.join(", ")}</p>
+      <p class="meal-ingredients"><strong>${tr("needs")}</strong> ${tIngList(recipe)}</p>
       <div class="meal-actions">
-        <button class="icon-btn" data-action="reshuffle" data-meal="${meal}">Try another</button>
-        <button class="icon-btn" data-action="favorite" data-id="${recipe.id}">${isFav ? "★ Saved" : "☆ Save"}</button>
+        <button class="icon-btn" data-action="reshuffle" data-meal="${meal}">${tr("tryAnother")}</button>
+        <button class="icon-btn" data-action="favorite" data-id="${recipe.id}">${isFav ? tr("saved") : tr("save")}</button>
       </div>
     </article>`;
 }
 
-function labelFor(meal) {
-  return { breakfast: "Breakfast", lunch: "Lunch", dinner: "Dinner" }[meal];
-}
-function tagLabel(tag) {
-  return { quick: "Quick", light: "Light", protein: "Protein-rich", festive: "A little special" }[tag] || tag;
-}
+function labelFor(meal) { return tr("meal_" + meal); }
+function tagLabel(tag) { return tr("tag_" + tag) || tag; }
 
 function renderHome() {
   ["breakfast", "lunch", "dinner"].forEach(meal => {
@@ -207,15 +216,17 @@ function renderHome() {
 }
 
 /* ---------- Rendering: Ingredients ---------- */
-function renderIngredients() {
+function renderIngredients(live) {
+  // `live` (optional) = ticks not yet saved, kept when the language is switched.
+  const isOn = item => (live ? live.has(item) : state.kitchen.includes(item));
   const wrap = document.getElementById("ingredientGroups");
   wrap.innerHTML = Object.entries(INGREDIENT_MASTER).map(([group, items]) => `
     <div class="ingredient-group">
-      <h3>${group}</h3>
+      <h3>${tGroup(group)}</h3>
       ${items.map(item => `
         <label class="ingredient-item">
-          <input type="checkbox" value="${item}" ${state.kitchen.includes(item) ? "checked" : ""} />
-          ${item}
+          <input type="checkbox" value="${item}" ${isOn(item) ? "checked" : ""} />
+          ${tIng(item)}
         </label>`).join("")}
     </div>`).join("");
 }
@@ -223,24 +234,22 @@ function renderIngredients() {
 /* ---------- Rendering: Recipe book ---------- */
 let recipeFilter = "all";
 function renderRecipes() {
-  const q = (document.getElementById("recipeSearch")?.value || "").toLowerCase();
-  const list = RECIPES.filter(r => (recipeFilter === "all" || r.meal === recipeFilter))
-    .filter(r => !q || r.name.toLowerCase().includes(q) || r.ingredients.some(i => i.toLowerCase().includes(q)));
+  const q = (document.getElementById("recipeSearch")?.value || "").trim().toLowerCase();
+  const list = RECIPES.filter(r => recipeFilter === "all" || r.meal === recipeFilter)
+    .filter(r => !q || searchText(r).includes(q));
 
   document.getElementById("recipeList").innerHTML = list.map(r => `
-    <article class="recipe-card">
+    <article class="recipe-card" data-meal="${r.meal}">
       <span class="meal-label">${labelFor(r.meal)}</span>
-      <h3>${r.name}</h3>
-      <div class="meal-meta"><span>${r.time} min</span>${r.tags.map(t => `<span>${tagLabel(t)}</span>`).join("")}</div>
-      <p class="meal-ingredients"><strong>Needs:</strong> ${r.ingredients.join(", ")}</p>
-      <p class="meal-prep"><strong>Advance prep:</strong> ${r.advancePrep}</p>
-    </article>`).join("") || `<p>No recipes match that search yet.</p>`;
+      <h3>${tName(r)}</h3>
+      <div class="meal-meta"><span>${r.time} ${tr("min")}</span>${r.tags.map(t => `<span>${tagLabel(t)}</span>`).join("")}</div>
+      <p class="meal-ingredients"><strong>${tr("needs")}</strong> ${tIngList(r)}</p>
+      <p class="meal-prep"><strong>${tr("advancePrep")}</strong> ${tPrep(r)}</p>
+    </article>`).join("") || `<p>${tr("noMatch")}</p>`;
 }
 
 /* ---------- Rendering: Plan ahead ----------
-   This tab is deliberately about TOMORROW's menu, not today's — the whole point
-   is to show what to prep tonight while there's still time, for meals you
-   haven't cooked yet. Today's cards intentionally don't repeat this info. */
+   This tab is deliberately about TOMORROW's menu, not today's. */
 function renderPlanAhead() {
   ["breakfast", "lunch", "dinner"].forEach(meal => {
     if (!state.tomorrow[meal]) recordChoice("tomorrow", meal, pickRecipe(meal));
@@ -250,11 +259,11 @@ function renderPlanAhead() {
     const r = state.tomorrow[meal];
     return `
       <div class="planahead-item" data-meal="${meal}">
-        <span class="meal-label">Tomorrow's ${labelFor(meal)} — ${r.name}</span>
-        <h3>Prep tonight</h3>
-        <p>${r.advancePrep}</p>
+        <span class="meal-label">${tr("tomorrowsMeal", labelFor(meal), tName(r))}</span>
+        <h3>${tr("prepTonight")}</h3>
+        <p>${tPrep(r)}</p>
         <div class="meal-actions">
-          <button class="icon-btn" data-action="reshuffle-tomorrow" data-meal="${meal}">Try another</button>
+          <button class="icon-btn" data-action="reshuffle-tomorrow" data-meal="${meal}">${tr("tryAnother")}</button>
         </div>
       </div>`;
   }).join("");
@@ -281,8 +290,14 @@ function closePremiumModal() { document.getElementById("premiumModal").hidden = 
 
 /* ---------- Event wiring ---------- */
 function wireEvents() {
-  document.querySelectorAll("[data-route]").forEach(el => {
-    el.addEventListener("click", () => goTo(el.dataset.route));
+    // One listener for every [data-route] element (keeps working after text is re-translated).
+  document.addEventListener("click", e => {
+    const el = e.target.closest("[data-route]");
+    if (el) goTo(el.dataset.route);
+  });
+
+  document.getElementById("langToggle").addEventListener("click", () => {
+    setLang(currentLang === "en" ? "hi" : "en");
   });
 
   document.getElementById("navToggle").addEventListener("click", () => {
@@ -332,7 +347,7 @@ function wireEvents() {
     state.kitchen = checked;
     saveJSON("kitchen", state.kitchen);
     const hint = document.getElementById("saveHint");
-    hint.textContent = "Saved to this device.";
+    hint.textContent = tr("savedDevice");
     setTimeout(() => hint.textContent = "", 2500);
   });
 
@@ -349,14 +364,26 @@ function wireEvents() {
   document.getElementById("premiumModal").addEventListener("click", e => { if (e.target.id === "premiumModal") closePremiumModal(); });
   document.getElementById("premiumNotify").addEventListener("click", () => {
     // Wire this to your real email-capture or payment flow.
-    document.getElementById("premiumNotify").textContent = "Thanks — we'll let you know!";
+    document.getElementById("premiumNotify").textContent = tr("notifyThanks");
   });
+}
+
+/* Called by setLang() in lang.js after the language changes. */
+function rerenderCurrent() {
+  renderHome();
+  if (state.route === "recipes") renderRecipes();
+  if (state.route === "planahead") renderPlanAhead();
+  if (state.route === "ingredients") {
+    const live = new Set(Array.from(document.querySelectorAll("#ingredientGroups input:checked")).map(i => i.value));
+    renderIngredients(live);
+  }
 }
 
 /* ---------- Init ---------- */
 function init() {
   document.getElementById("year").textContent = new Date().getFullYear();
   wireEvents();
+  applyStaticLang();
   renderHome();
   goTo("home");
 
