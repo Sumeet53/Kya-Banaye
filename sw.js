@@ -5,11 +5,19 @@ const CORE_ASSETS = [
   "./style.css",
   "./app.js",
   "./manifest.json",
+  "./lang.js",
+  "./icons/icon-192.png",
+  "./icons/icon-512.png",
+  "./icons/icon-maskable-512.png",
+  "./icons/apple-touch-icon.png",
+  "./icons/favicon-32.png",
 ];
 
 self.addEventListener("install", event => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then(cache => cache.addAll(CORE_ASSETS)).catch(() => {})
+    caches.open(CACHE_NAME).then(cache =>
+      Promise.all(CORE_ASSETS.map(url => cache.add(url).catch(() => {})))
+    )
   );
   self.skipWaiting();
 });
