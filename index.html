@@ -7,11 +7,11 @@
 <meta name="description" content="Kya Banaye — simple, healthy, no-fuss veg meal suggestions for breakfast, lunch and dinner, with next-day prep tips." />
 <title>Kya Banaye — Khane Mein Kya Banana Hai?</title>
 <link rel="manifest" href="manifest.json" />
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='48' fill='%23375F80'/%3E%3Ctext x='50' y='66' font-size='55' text-anchor='middle' fill='%23F3F8FC'%3E%F0%9F%8D%B2%3C/text%3E%3C/svg%3E" />
-<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='48' fill='%23375F80'/%3E%3Ctext x='50' y='66' font-size='55' text-anchor='middle' fill='%23F3F8FC'%3E%F0%9F%8D%B2%3C/text%3E%3C/svg%3E" />
+<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png" />
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Work+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Work+Sans:wght@400;500;600;700&family=Noto+Sans+Devanagari:wght@400;500;600;700&family=Noto+Serif+Devanagari:wght@600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css" />
 </head>
 <body>
@@ -77,7 +77,7 @@
       <div class="field">
         <label for="useKitchenOnly">
           <input type="checkbox" id="useKitchenOnly" />
-          Only suggest what I can make from "My Kitchen"
+          <span id="kitchenOnlyText">Only suggest what I can make from "My Kitchen"</span>"
         </label>
       </div>
     </div>
@@ -186,6 +186,7 @@
   <p class="footer-fine">All suggestions are general in nature and not a substitute for professional medical or dietary advice. Use your own discretion. See <button class="link-btn" data-route="about-app">About App</button> for full terms.</p>
 </footer>
 
+<script src="lang.js"></script>
 <script src="app.js"></script>
 </body>
 </html>
