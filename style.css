@@ -523,3 +523,73 @@ main { max-width: 980px; margin: 0 auto; padding: 32px clamp(16px, 4vw, 40px) 60
 /* ---------- Overflow safety for any wide content ---------- */
 
 .recipe-list, .thali-grid, .ingredient-groups { overflow-x: visible; }
+/* 1) fonts (Devanagari fallbacks after the Latin fonts) */
+:root {
+  --serif: "Fraunces", "Noto Serif Devanagari", Georgia, "Times New Roman", serif;
+  --sans: "Work Sans", "Noto Sans Devanagari", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --meal-breakfast: #3F76A0;   /* blue  */
+  --meal-lunch: #2E7D4F;       /* green */
+  --meal-dinner: #B23A2E;      /* red   */
+}
+
+/* 2) language button (top bar) */
+.primary-nav { margin-left: auto; }
+.lang-toggle {
+  order: 3; min-width: 42px; height: 38px; padding: 0 10px;
+  border: 1px solid var(--line); border-radius: 8px;
+  background: var(--paper-raised); color: var(--primary-deep);
+  font-size: 0.85rem; font-weight: 600; cursor: pointer;
+}
+.lang-toggle:hover { background: var(--primary-soft); }
+@media (max-width: 720px) {
+  .primary-nav { margin-left: 0; }
+  .lang-toggle { order: 1; margin-left: auto; }
+  .nav-toggle { order: 2; }
+}
+
+/* 3) meal colours: Today, Recipe Book and Plan for Tomorrow */
+[data-meal="breakfast"] { --meal-color: var(--meal-breakfast); }
+[data-meal="lunch"]     { --meal-color: var(--meal-lunch); }
+[data-meal="dinner"]    { --meal-color: var(--meal-dinner); }
+.meal-card[data-meal], .recipe-card[data-meal], .planahead-item[data-meal] { border-left: 5px solid var(--meal-color); }
+.meal-card .meal-label, .recipe-card .meal-label, .planahead-item .meal-label { color: var(--meal-color); }
+.chip[data-meal="breakfast"].is-active { background: var(--meal-breakfast); border-color: var(--meal-breakfast); }
+.chip[data-meal="lunch"].is-active     { background: var(--meal-lunch);     border-color: var(--meal-lunch); }
+.chip[data-meal="dinner"].is-active    { background: var(--meal-dinner);    border-color: var(--meal-dinner); }
+
+/* 4) compact rhythm: the same spacing on every page */
+html, body { line-height: 1.4; }
+h1 { margin: 0 0 0.35em; }
+h2 { margin: 0.8em 0 0.3em; }
+h3 { margin: 0 0 0.3em; }
+p  { margin: 0 0 0.6em; }
+.modal h2 { margin-top: 0; }
+main { padding-top: 20px; }
+.hero { margin-bottom: 14px; }
+.hero-sub, .section-sub { margin-bottom: 12px; }
+.controls-row { margin-bottom: 12px; padding: 10px 14px; gap: 12px; }
+.regen-row, .plan-tomorrow-row { margin-bottom: 12px; }
+.ad-slot { padding: 10px; margin-bottom: 12px; }
+.ingredient-groups { gap: 12px; }
+.ingredient-group { padding: 12px 14px; }
+.ingredient-group h3 { margin-bottom: 6px; }
+.ingredient-item { padding: 3px 0; }
+.recipe-filters { margin-bottom: 12px; gap: 6px; }
+.recipe-list { gap: 12px; }
+.recipe-card { display: flex; flex-direction: column; gap: 6px; padding: 14px 16px 12px; }
+.recipe-card h3, .recipe-card p { margin: 0; }
+.recipe-card .meal-meta { margin: 0; }
+.recipe-card .meal-prep { padding-top: 6px; }
+.meal-prep { margin: 0; }
+.planahead-list { gap: 12px; }
+.planahead-item { display: flex; flex-direction: column; gap: 6px; padding: 14px 16px 12px; }
+.planahead-item h3, .planahead-item p { margin: 0; }
+.prose p, .disclaimer-box p { line-height: 1.45; margin: 0 0 0.6em; }
+.disclaimer-box { margin-top: 14px; padding: 12px 16px; }
+.site-footer { padding-top: 14px; }
+.site-footer p { margin: 0 0 4px; }
+
+/* Devanagari needs a touch more line height */
+html[lang="hi"] body { line-height: 1.55; }
+html[lang="hi"] .meal-ingredients, html[lang="hi"] .prose p,
+html[lang="hi"] .disclaimer-box p, html[lang="hi"] .planahead-item p { line-height: 1.5; }
