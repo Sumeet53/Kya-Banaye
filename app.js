@@ -284,6 +284,17 @@ function goTo(route) {
   if (route === "planahead") renderPlanAhead();
 }
 
+/* ---------- Kitchen-only hint ----------
+   "Only suggest from My Kitchen" has nothing to filter by until ingredients
+   have actually been saved on the My Kitchen tab — without this, ticking it
+   silently does nothing and looks broken. */
+function updateKitchenEmptyHint() {
+  const hint = document.getElementById("kitchenEmptyHint");
+  const show = state.useKitchenOnly && state.kitchen.length === 0;
+  hint.hidden = !show;
+  if (show) hint.textContent = tr("kitchenEmptyHint");
+}
+
 /* ---------- Premium modal ---------- */
 function openPremiumModal() { document.getElementById("premiumModal").hidden = false; }
 function closePremiumModal() { document.getElementById("premiumModal").hidden = true; }
@@ -306,11 +317,14 @@ function wireEvents() {
     document.getElementById("navToggle").setAttribute("aria-expanded", open);
   });
 
-  document.getElementById("goalSelect").addEventListener("change", e => {
+    document.getElementById("goalSelect").addEventListener("change", e => {
     state.goal = e.target.value;
+    suggestAll();
   });
   document.getElementById("useKitchenOnly").addEventListener("change", e => {
     state.useKitchenOnly = e.target.checked;
+    updateKitchenEmptyHint();
+    suggestAll();
   });
 
   document.getElementById("regenAll").addEventListener("click", suggestAll);
@@ -346,6 +360,8 @@ function wireEvents() {
     const checked = Array.from(document.querySelectorAll("#ingredientGroups input:checked")).map(i => i.value);
     state.kitchen = checked;
     saveJSON("kitchen", state.kitchen);
+    updateKitchenEmptyHint();
+    if (state.useKitchenOnly) suggestAll();
     const hint = document.getElementById("saveHint");
     hint.textContent = tr("savedDevice");
     setTimeout(() => hint.textContent = "", 2500);
@@ -374,9 +390,10 @@ function rerenderCurrent() {
   if (state.route === "recipes") renderRecipes();
   if (state.route === "planahead") renderPlanAhead();
   if (state.route === "ingredients") {
-    const live = new Set(Array.from(document.querySelectorAll("#ingredientGroups input:checked")).map(i => i.value));
-    renderIngredients(live);
+  const live = new Set(Array.from(document.querySelectorAll("#ingredientGroups input:checked")).map(i => i.value));
+  renderIngredients(live);
   }
+  updateKitchenEmptyHint();
 }
 
 /* ---------- Init ---------- */
@@ -384,6 +401,7 @@ function init() {
   document.getElementById("year").textContent = new Date().getFullYear();
   wireEvents();
   applyStaticLang();
+  updateKitchenEmptyHint();
   renderHome();
   goTo("home");
 
