@@ -590,3 +590,16 @@ main { padding-top: 20px; }
 html[lang="hi"] body { line-height: 1.55; }
 html[lang="hi"] .meal-ingredients, html[lang="hi"] .prose p,
 html[lang="hi"] .disclaimer-box p, html[lang="hi"] .planahead-item p { line-height: 1.5; }
+/* "Only suggest from My Kitchen" hint — shown only when ticked with nothing saved yet */
+.field { position: relative; }
+.kitchen-empty-hint {
+  display: block;
+  font-size: 0.78rem;
+  color: var(--primary-deep);
+  background: var(--primary-soft);
+  border-radius: 6px;
+  padding: 5px 9px;
+  margin-top: 6px;
+  max-width: 320px;
+}
+.kitchen-empty-hint[hidden] { display: none; }
