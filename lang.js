@@ -32,6 +32,7 @@ const UI = {
     noMatch: "No recipes match that search yet.",
     savedDevice: "Saved to this device.",
     notifyThanks: "Thanks — we'll let you know!",
+    kitchenEmptyHint: "Add a few items in My Kitchen first, then this will narrow things down.",
   },
   hi: {
     meal_breakfast: "नाश्ता", meal_lunch: "दोपहर का खाना", meal_dinner: "रात का खाना",
@@ -47,6 +48,7 @@ const UI = {
     noMatch: "इस खोज से कोई रेसिपी नहीं मिली।",
     savedDevice: "इस डिवाइस पर सेव हो गया।",
     notifyThanks: "धन्यवाद — हम आपको बता देंगे!",
+    kitchenEmptyHint: "पहले \"मेरी रसोई\" में कुछ सामग्री जोड़ें, फिर यह सुझावों को सीमित कर पाएगा।",
   },
 };
 
