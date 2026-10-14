@@ -32,6 +32,7 @@
     <button class="nav-link" data-route="ingredients">My Kitchen</button>
     <button class="nav-link" data-route="recipes">Recipe Book</button>
     <button class="nav-link" data-route="planahead">Plan for Tomorrow</button>
+    <button class="nav-link" data-route="history">History</button>
     <button class="nav-link" data-route="about-app">About App</button>
     <button class="nav-link" data-route="about-us">About Us</button>
   </nav>
@@ -50,7 +51,10 @@
     <span class="bottom-tab-icon" aria-hidden="true">📖</span><span>Recipes</span>
   </button>
   <button class="bottom-tab" data-route="planahead">
-    <span class="bottom-tab-icon" aria-hidden="true">🗓️</span><span>Plan</span>
+       <span class="bottom-tab-icon" aria-hidden="true">🗓️</span><span>Plan</span>
+  </button>
+  <button class="bottom-tab" data-route="history">
+    <span class="bottom-tab-icon" aria-hidden="true">📒</span><span>History</span>
   </button>
 </nav>
 
@@ -85,8 +89,10 @@
     </div>
 
     <div class="thali-grid" id="thaliGrid">
-      <!-- meal cards injected by app.js -->
+     <!-- meal cards injected by app.js -->
     </div>
+
+    <p class="repeat-note" id="repeatNote" hidden></p>
 
     <div class="regen-row">
       <button class="btn btn-secondary" id="regenAll">Shuffle all three</button>
@@ -135,6 +141,18 @@
       <button class="btn btn-secondary" id="regenTomorrow">Shuffle tomorrow's menu</button>
     </div>
     <div class="planahead-list" id="planaheadList"><!-- injected --></div>
+  </section>
+
+   <!-- HISTORY -->
+  <section class="view" id="view-history" data-view="history" hidden>
+    <h1>What I Cooked</h1>
+    <p class="section-sub">Meals you marked “Cooked this”, newest first. A cooked dish is kept out of new suggestions for a few days.</p>
+    <p class="history-summary" id="historySummary" hidden></p>
+    <div class="field repeat-field">
+      <label for="repeatDays">Don't repeat a cooked dish for</label>
+      <select id="repeatDays"></select>
+    </div>
+    <div class="history-list" id="historyList"><!-- injected --></div>
   </section>
 
   <!-- ABOUT APP -->
