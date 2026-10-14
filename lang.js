@@ -33,6 +33,13 @@ const UI = {
     savedDevice: "Saved to this device.",
     notifyThanks: "Thanks — we'll let you know!",
     kitchenEmptyHint: "Add a few items in My Kitchen first, then this will narrow things down.",
+    cookedThis: "✓ Cooked this",
+    undoCooked: "Undo",
+    cookedBadge: "Cooked ✓",
+    repeatNote: "Some dishes below were cooked recently — our recipe list is still small. More dishes are coming.",
+    days: n => `${n} days`,
+    weekSummary: (total, distinct) => `Last 7 days: ${total} ${total === 1 ? "meal" : "meals"} cooked, ${distinct} different ${distinct === 1 ? "dish" : "dishes"}.`,
+    historyEmpty: "Nothing here yet. Tap “Cooked this” on a meal in Today and it will appear here.",
   },
   hi: {
     meal_breakfast: "नाश्ता", meal_lunch: "दोपहर का खाना", meal_dinner: "रात का खाना",
@@ -49,6 +56,13 @@ const UI = {
     savedDevice: "इस डिवाइस पर सेव हो गया।",
     notifyThanks: "धन्यवाद — हम आपको बता देंगे!",
     kitchenEmptyHint: "पहले \"मेरी रसोई\" में कुछ सामग्री जोड़ें, फिर यह सुझावों को सीमित कर पाएगा।",
+    cookedThis: "✓ बना लिया",
+    undoCooked: "वापस लें",
+    cookedBadge: "बन गया ✓",
+    repeatNote: "नीचे कुछ व्यंजन हाल ही में बन चुके हैं — हमारी रेसिपी सूची अभी छोटी है। और व्यंजन जल्द जुड़ेंगे।",
+    days: n => `${n} दिन`,
+    weekSummary: (total, distinct) => `पिछले 7 दिन: ${total} बार खाना बना, ${distinct} अलग-अलग व्यंजन।`,
+    historyEmpty: "अभी यहाँ कुछ नहीं है। “आज” में किसी खाने पर “बना लिया” दबाइए, वह यहाँ दिखेगा।", 
   },
 };
 
@@ -226,7 +240,12 @@ const STATIC_HI = [
   ["#view-planahead h1", "कल की योजना"],
   ["#view-planahead .section-sub", "कल के मेन्यू की एक झलक — ताकि आपको पता रहे कि आज रात, जब थोड़ी फुर्सत हो, क्या भिगोना, काटना या गूंधना है।"],
   ["#regenTomorrow", "कल का मेन्यू बदलें"],
-
+    // History
+  ['#primaryNav [data-route="history"]', "इतिहास"],
+  ['.bottom-tab[data-route="history"] span:last-child', "इतिहास"],
+  ["#view-history h1", "मैंने क्या बनाया"],
+  ["#view-history .section-sub", "जिन खानों को आपने “बना लिया” चुना, वे यहाँ नए से पुराने क्रम में दिखते हैं। बन चुका व्यंजन कुछ दिनों तक नए सुझावों में नहीं आता।"],
+  ['label[for="repeatDays"]', "बन चुका व्यंजन इतने दिनों तक न सुझाएँ:"],
   // About App
   ["#view-about-app h1", "ऐप के बारे में"],
   ["#view-about-app .prose p:nth-of-type(1)", "<strong>Kya Banaye</strong> एक छोटी लेकिन रोज़ की परेशानी सुलझाने के लिए बना है: दिन में तीन बार, हर दिन यह तय करना कि क्या पकाना है। यह हर उस व्यक्ति के लिए है जिस पर रसोई की ज़िम्मेदारी है — अक्सर भारतीय घरों की महिलाओं के लिए — जो बिना किसी श्रेय के यह अदृश्य सोच-विचार का काम रोज़ निभाती हैं।"],
