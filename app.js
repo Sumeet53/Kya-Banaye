@@ -105,6 +105,10 @@ const state = {
   history: loadJSON("history", { breakfast: [], lunch: [], dinner: [] }),
   today: loadJSON("today", { breakfast: null, lunch: null, dinner: null }),
   tomorrow: loadJSON("tomorrow", { breakfast: null, lunch: null, dinner: null }),
+  todayDate: loadJSON("todayDate", null),
+  tomorrowDate: loadJSON("tomorrowDate", null),
+  cookedLog: loadJSON("cookedLog", {}),
+  repeatDays: loadJSON("repeatDays", 4),
   favorites: loadJSON("favorites", []),
   interactionCount: loadJSON("interactionCount", 0),
 };
@@ -119,6 +123,67 @@ function saveJSON(key, value) {
   try { localStorage.setItem("akb_" + key, JSON.stringify(value)); } catch (e) { /* storage unavailable */ }
 }
 
+/* ---------- Dates & cooked log ---------- */
+function emptyDay() { return { breakfast: null, lunch: null, dinner: null }; }
+
+/* Local-time date as YYYY-MM-DD (offset 1 = tomorrow, -1 = yesterday). */
+function dateKey(offsetDays = 0) {
+  const d = new Date();
+  d.setDate(d.getDate() + offsetDays);
+  const p = n => String(n).padStart(2, "0");
+  return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`;
+}
+
+/* A new day has started: the plan made for "tomorrow" becomes today's menu. */
+function rolloverIfNeeded() {
+  const t = dateKey();
+  if (state.todayDate === t) return;
+  state.today = state.tomorrowDate === t ? state.tomorrow : emptyDay();
+  state.todayDate = t;
+  if (state.tomorrowDate === null || state.tomorrowDate <= t) {
+    state.tomorrow = emptyDay();
+    state.tomorrowDate = null;
+  }
+  saveJSON("today", state.today);
+  saveJSON("todayDate", state.todayDate);
+  saveJSON("tomorrow", state.tomorrow);
+  saveJSON("tomorrowDate", state.tomorrowDate);
+}
+
+function isCooked(meal) {
+  const day = state.cookedLog[dateKey()];
+  return !!(day && state.today[meal] && day[meal] === state.today[meal].id);
+}
+
+function setCooked(meal, on) {
+  const k = dateKey();
+  if (on && state.today[meal]) {
+    state.cookedLog[k] = state.cookedLog[k] || {};
+    state.cookedLog[k][meal] = state.today[meal].id;
+  } else if (state.cookedLog[k]) {
+    delete state.cookedLog[k][meal];
+    if (!Object.keys(state.cookedLog[k]).length) delete state.cookedLog[k];
+  }
+  saveJSON("cookedLog", state.cookedLog);
+}
+
+/* Map of dish id -> days ago it was cooked, for the last `days` days (0 = today). */
+function recentlyCookedIds(days) {
+  const out = new Map();
+  for (let i = 0; i < days; i++) {
+    const day = state.cookedLog[dateKey(-i)];
+    if (day) Object.values(day).forEach(id => { if (!out.has(id)) out.set(id, i); });
+  }
+  return out;
+}
+
+function updateRepeatNote() {
+  const note = document.getElementById("repeatNote");
+  const cooked = recentlyCookedIds(state.repeatDays);
+  const show = ["breakfast", "lunch", "dinner"].some(m => state.today[m] && !isCooked(m) && cooked.has(state.today[m].id));
+  note.hidden = !show;
+  if (show) note.textContent = tr("repeatNote");
+}
 /* ---------- Suggestion engine ---------- */
 /* Compares a recipe ingredient with a "My Kitchen" item. Ignores bracketed
    alternate names, splits "a/b", "a or b", "a-b", drops mixed / seasonal / split / optional. */
@@ -136,6 +201,16 @@ function ingredientMatches(a, b) {
 function pickRecipe(meal) {
   let pool = RECIPES.filter(r => r.meal === meal);
 
+  // Dishes you confirmed cooking in the last N days are set aside. If the
+  // recipe list is too small for that, offer the one cooked longest ago.
+  const cooked = recentlyCookedIds(state.repeatDays);
+  const notRecent = pool.filter(r => !cooked.has(r.id));
+  if (notRecent.length) {
+    pool = notRecent;
+  } else {
+    const longestAgo = Math.max(...pool.map(r => cooked.get(r.id)));
+    pool = pool.filter(r => cooked.get(r.id) === longestAgo);
+  }
   if (state.goal !== "any") {
     const goalPool = pool.filter(r => r.tags.includes(state.goal));
     if (goalPool.length) pool = goalPool;
@@ -158,6 +233,8 @@ function pickRecipe(meal) {
 
 function recordChoice(target, meal, recipe) {
   state[target][meal] = recipe;
+  if (target === "today") { state.todayDate = dateKey(); saveJSON("todayDate", state.todayDate); }
+  else { state.tomorrowDate = dateKey(1); saveJSON("tomorrowDate", state.tomorrowDate); }
   state.history[meal].push(recipe.id);
   state.history[meal] = state.history[meal].slice(-6);
   saveJSON("history", state.history);
@@ -165,7 +242,7 @@ function recordChoice(target, meal, recipe) {
 }
 
 function suggestAll() {
-  ["breakfast", "lunch", "dinner"].forEach(meal => recordChoice("today", meal, pickRecipe(meal)));
+  ["breakfast", "lunch", "dinner"].filter(meal => !isCooked(meal)).forEach(meal => recordChoice("today", meal, pickRecipe(meal)));
   bumpInteraction();
   renderHome();
 }
@@ -188,9 +265,10 @@ function bumpInteraction() {
 function mealCardHTML(meal, recipe) {
   if (!recipe) return "";
   const isFav = state.favorites.includes(recipe.id);
+  const done = isCooked(meal);
   return `
-    <article class="meal-card" data-meal="${meal}">
-      <span class="meal-label">${labelFor(meal)}</span>
+    <article class="meal-card${done ? " is-cooked" : ""}" data-meal="${meal}">
+      <span class="meal-label">${labelFor(meal)}${done ? " · " + tr("cookedBadge") : ""}</span>
       <h3 class="meal-name">${tName(recipe)}</h3>
       <div class="meal-meta">
         <span>${recipe.time} ${tr("min")}</span>
@@ -198,8 +276,9 @@ function mealCardHTML(meal, recipe) {
       </div>
       <p class="meal-ingredients"><strong>${tr("needs")}</strong> ${tIngList(recipe)}</p>
       <div class="meal-actions">
-        <button class="icon-btn" data-action="reshuffle" data-meal="${meal}">${tr("tryAnother")}</button>
+        ${done ? "" : `<button class="icon-btn" data-action="reshuffle" data-meal="${meal}">${tr("tryAnother")}</button>`}
         <button class="icon-btn" data-action="favorite" data-id="${recipe.id}">${isFav ? tr("saved") : tr("save")}</button>
+        <button class="icon-btn${done ? "" : " icon-btn-primary"}" data-action="cooked" data-meal="${meal}">${done ? tr("undoCooked") : tr("cookedThis")}</button>
       </div>
     </article>`;
 }
@@ -213,6 +292,7 @@ function renderHome() {
   });
   const grid = document.getElementById("thaliGrid");
   grid.innerHTML = ["breakfast", "lunch", "dinner"].map(meal => mealCardHTML(meal, state.today[meal])).join("");
+  updateRepeatNote();
 }
 
 /* ---------- Rendering: Ingredients ---------- */
@@ -269,8 +349,46 @@ function renderPlanAhead() {
   }).join("");
 }
 
+/* ---------- Rendering: History ---------- */
+function recipeById(id) { return RECIPES.find(r => r.id === id); }
+
+function formatDay(key) {
+  const [y, m, d] = key.split("-").map(Number);
+  return new Date(y, m - 1, d).toLocaleDateString(currentLang === "hi" ? "hi-IN" : "en-IN",
+    { weekday: "short", day: "numeric", month: "short", year: "numeric" });
+}
+
+function renderRepeatSelect() {
+  const sel = document.getElementById("repeatDays");
+  sel.innerHTML = [2, 3, 4, 5, 7, 10, 14].map(n =>
+    `<option value="${n}"${n === state.repeatDays ? " selected" : ""}>${tr("days", n)}</option>`).join("");
+}
+
+function renderHistory() {
+  const recent = [];
+  for (let i = 0; i < 7; i++) {
+    const day = state.cookedLog[dateKey(-i)];
+    if (day) recent.push(...Object.values(day));
+  }
+  const summary = document.getElementById("historySummary");
+  summary.hidden = !recent.length;
+  if (recent.length) summary.textContent = tr("weekSummary", recent.length, new Set(recent).size);
+
+  const keys = Object.keys(state.cookedLog).sort().reverse();
+  document.getElementById("historyList").innerHTML = keys.length ? keys.map(key => `
+    <div class="history-day">
+      <h3>${formatDay(key)}</h3>
+      ${["breakfast", "lunch", "dinner"].filter(m => state.cookedLog[key][m]).map(m => {
+        const r = recipeById(state.cookedLog[key][m]);
+        return `<div class="history-row" data-meal="${m}"><span class="meal-label">${labelFor(m)}</span><span class="history-dish">${r ? tName(r) : state.cookedLog[key][m]}</span></div>`;
+      }).join("")}
+    </div>`).join("") : `<p>${tr("historyEmpty")}</p>`;
+}
 /* ---------- Routing ---------- */
-function goTo(route) {
+  function goTo(route) {
+  const before = state.todayDate;
+  rolloverIfNeeded();                       // a new day may have started
+  if (state.todayDate !== before) renderHome();
   state.route = route;
   document.querySelectorAll(".view").forEach(v => v.hidden = v.dataset.view !== route);
   // Keep the desktop top nav AND the mobile bottom tab bar in sync with each other.
@@ -282,6 +400,7 @@ function goTo(route) {
   if (route === "recipes") renderRecipes();
   if (route === "ingredients") renderIngredients();
   if (route === "planahead") renderPlanAhead();
+  if (route === "history") renderHistory();
 }
 
 /* ---------- Kitchen-only hint ----------
@@ -329,7 +448,11 @@ function wireEvents() {
 
   document.getElementById("regenAll").addEventListener("click", suggestAll);
   document.getElementById("regenTomorrow").addEventListener("click", suggestAllTomorrow);
-
+  document.getElementById("repeatDays").addEventListener("change", e => {
+    state.repeatDays = Number(e.target.value);
+    saveJSON("repeatDays", state.repeatDays);
+    updateRepeatNote();
+  });
   document.getElementById("thaliGrid").addEventListener("click", e => {
     const btn = e.target.closest("button[data-action]");
     if (!btn) return;
@@ -337,6 +460,10 @@ function wireEvents() {
       const meal = btn.dataset.meal;
       recordChoice("today", meal, pickRecipe(meal));
       bumpInteraction();
+      renderHome();
+    }
+      if (btn.dataset.action === "cooked") {
+      setCooked(btn.dataset.meal, !isCooked(btn.dataset.meal));
       renderHome();
     }
     if (btn.dataset.action === "favorite") {
@@ -389,6 +516,8 @@ function rerenderCurrent() {
   renderHome();
   if (state.route === "recipes") renderRecipes();
   if (state.route === "planahead") renderPlanAhead();
+  if (state.route === "history") renderHistory();
+  renderRepeatSelect(); 
   if (state.route === "ingredients") {
   const live = new Set(Array.from(document.querySelectorAll("#ingredientGroups input:checked")).map(i => i.value));
   renderIngredients(live);
@@ -401,9 +530,19 @@ function init() {
   document.getElementById("year").textContent = new Date().getFullYear();
   wireEvents();
   applyStaticLang();
+    rolloverIfNeeded();
   updateKitchenEmptyHint();
+  renderRepeatSelect();
   renderHome();
   goTo("home");
+
+  // Coming back to the app after hours or overnight: start the new day.
+  document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState !== "visible") return;
+    const before = state.todayDate;
+    rolloverIfNeeded();
+    if (state.todayDate !== before) rerenderCurrent();
+  });
 
   if ("serviceWorker" in navigator) {
     navigator.serviceWorker.register("sw.js").catch(() => { /* offline caching unavailable */ });
